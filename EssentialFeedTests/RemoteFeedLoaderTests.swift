@@ -9,11 +9,11 @@ import XCTest
 import EssentialFeed
 
 final class RemoteFeedLoaderTests: XCTestCase {
-
+    
     func test_init_doesNotRequestDataFromURL() {
         let url = URL(string: "https://a-given-url.com")!
         let (_, client) = makeSUT(url: url)
-
+        
         XCTAssertTrue(client.requestedURLs.isEmpty)
     }
     
@@ -77,6 +77,46 @@ final class RemoteFeedLoaderTests: XCTestCase {
         })
     }
     
+    func test_load_deliversItemsOn200HTTPResponseWithJSONItems() {
+        
+        let (sut, client) = makeSUT()
+        
+        let item1 = FeedItem(
+            id: UUID(),
+            description: nil,
+            location: nil,
+            imageURL: URL(string: "http://a-url.com")!)
+        
+        let item1JSON = [
+            "id": item1.id.uuidString,
+            "image": item1.imageURL.absoluteString
+        ]
+        
+        let item2 = FeedItem(
+            id: UUID(),
+            description: "a description",
+            location: "a location",
+            imageURL: URL(string: "http://another-url.com")!)
+        
+        let item2JSON = [
+            "id": item2.id.uuidString,
+            "description": item2.description,
+            "location": item2.location,
+            "image": item2.imageURL.absoluteString
+        ]
+        
+        let itemsJSON = [
+            "items": [item1JSON, item2JSON]
+        ]
+        
+        expect(sut, toCompleteWith: .success([item1, item2]), when: {
+            
+            let json = try! JSONSerialization.data(withJSONObject: itemsJSON)
+            
+            client.complete(withStatusCode: 200, data: json)
+        })
+    }
+    
     // MARK: Helpers
     
     private func makeSUT(url: URL = URL(string: "https://a-given-url.com")!) -> (sut: RemoteFeedLoader, client: HTTPClientSpy) {
@@ -96,13 +136,13 @@ final class RemoteFeedLoaderTests: XCTestCase {
     }
     
     private class HTTPClientSpy: HTTPClient {
-
+        
         private var messages = [(url: URL, completion: (HTTPClientResult) -> Void)]()
         
         var requestedURLs: [URL] {
             return messages.map({ $0.url })
         }
-
+        
         func get(from url: URL, completion: @escaping (HTTPClientResult) -> Void) {
             messages.append((url, completion))
         }
