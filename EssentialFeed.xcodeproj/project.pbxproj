@@ -25,22 +25,9 @@
 		8340C7582EF993360015D9EF /* EssentialFeedTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EssentialFeedTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		8340C7602EF993360015D9EF /* Exceptions for "EssentialFeed" folder in "EssentialFeed" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			publicHeaders = (
-				EssentialFeed.h,
-			);
-			target = 8340C74F2EF993360015D9EF /* EssentialFeed */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		8340C7522EF993360015D9EF /* EssentialFeed */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				8340C7602EF993360015D9EF /* Exceptions for "EssentialFeed" folder in "EssentialFeed" target */,
-			);
 			path = EssentialFeed;
 			sourceTree = "<group>";
 		};
