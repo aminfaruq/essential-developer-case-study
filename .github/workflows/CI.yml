@@ -4,10 +4,10 @@
 name: CI
 
 on:
-  # push:
-    # branches: [ "master" ]
+  push:
+    branches: [ "network-module" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "network-module" ]
 
 jobs:
   build:
