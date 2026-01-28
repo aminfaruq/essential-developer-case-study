@@ -11,6 +11,9 @@ public final class RemoteFeedLoader: FeedLoader {
     private let url: URL
     private let client: HTTPClient
     
+    /// Domain-specific error categories exposed by `RemoteFeedLoader`.
+    /// - `connectivity`: Underlying transport/request error from the HTTP client (e.g., no internet, timeout, cancellation).
+    /// - `invalidData`: Received an HTTP response that failed validation (non-200) or the payload could not be decoded into domain models.
     public enum Error: Swift.Error {
         case connectivity
         case invalidData
@@ -36,3 +39,4 @@ public final class RemoteFeedLoader: FeedLoader {
         }
     }
 }
+
