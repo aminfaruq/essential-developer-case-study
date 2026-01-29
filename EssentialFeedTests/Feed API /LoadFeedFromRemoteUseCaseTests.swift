@@ -1,5 +1,5 @@
 //
-//  RemoteFeedLoaderTests.swift
+//  LoadFeedFromRemoteUseCaseTests.swift
 //  EssentialFeedTests
 //
 //  Created by Amin faruq on 23/12/25.
@@ -8,7 +8,7 @@
 import XCTest
 import EssentialFeed
 
-final class RemoteFeedLoaderTests: XCTestCase {
+final class LoadFeedFromRemoteUseCaseTests: XCTestCase {
     // Unit tests for `RemoteFeedLoader`.
     // Goal: Ensure the interaction with `HTTPClient` and the delivered results (success/failure)
     // match different HTTP response and data conditions.
