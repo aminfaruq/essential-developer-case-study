@@ -30,30 +30,24 @@ import Foundation
 ///     }
 ///   ]
 /// }
+
+
+/// Data Transfer Object (DTO) that mirrors the JSON fields for a single feed entry.
+internal struct RemoteFeedItem: Decodable {
+    internal let id: UUID
+    internal let description: String?
+    internal let location: String?
+    internal let image: URL
+    
+}
+
 internal final class FeedItemsMapper {
     
     /// Top-level payload that wraps an array of `Item` DTOs.
     private struct Root: Decodable {
-        let items: [Item]
-        
-        /// Transforms decoded DTOs into domain models.
-        var feed: [FeedItem] {
-            return items.map({ $0.item })
-        }
+        let items: [RemoteFeedItem]
     }
     
-    /// Data Transfer Object (DTO) that mirrors the JSON fields for a single feed entry.
-    private struct Item: Decodable {
-        let id: UUID
-        let description: String?
-        let location: String?
-        let image: URL
-        
-        /// Maps this DTO into the domain `FeedItem`.
-        var item: FeedItem {
-            return FeedItem(id: id, description: description, location: location, imageURL: image)
-        }
-    }
      
     /// Only HTTP 200 responses are considered valid for mapping.
     static var OK_200: Int { return 200 }
@@ -79,13 +73,13 @@ internal final class FeedItemsMapper {
     ///   {
     ///     "items": [ { "description": "missing id & image" } ]
     ///   }
-    internal static func map(_ data: Data, from response: HTTPURLResponse) -> RemoteFeedLoader.Result {
+    internal static func map(_ data: Data, from response: HTTPURLResponse) throws -> [RemoteFeedItem] {
         guard response.statusCode == OK_200,
               let root = try? JSONDecoder().decode(Root.self, from: data) else {
-            return .failure(RemoteFeedLoader.Error.invalidData)
+            throw RemoteFeedLoader.Error.invalidData
         }
         
-        return .success(root.feed)
+        return root.items
     }
 }
 
