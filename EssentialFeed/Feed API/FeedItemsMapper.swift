@@ -31,16 +31,6 @@ import Foundation
 ///   ]
 /// }
 
-
-/// Data Transfer Object (DTO) that mirrors the JSON fields for a single feed entry.
-internal struct RemoteFeedItem: Decodable {
-    internal let id: UUID
-    internal let description: String?
-    internal let location: String?
-    internal let image: URL
-    
-}
-
 internal final class FeedItemsMapper {
     
     /// Top-level payload that wraps an array of `Item` DTOs.
