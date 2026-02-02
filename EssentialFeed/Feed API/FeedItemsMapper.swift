@@ -7,16 +7,16 @@
 
 import Foundation
 
-/// Maps raw HTTP payloads into domain `[FeedItem]` while enforcing transport and schema constraints.
+/// Maps raw HTTP payloads into domain `[FeedImage]` while enforcing transport and schema constraints.
 ///
 /// Responsibilities:
 /// - Accept an HTTP response and its raw `Data`
 /// - Validate the HTTP status code (200-only)
 /// - Decode the expected JSON payload into internal DTOs
-/// - Map DTOs into the pure domain model `FeedItem`
+/// - Map DTOs into the pure domain model `FeedImage`
 ///
 /// Contract:
-/// - Returns `.success([FeedItem])` when `statusCode == 200` and decoding succeeds
+/// - Returns `.success([FeedImage])` when `statusCode == 200` and decoding succeeds
 /// - Returns `.failure(.invalidData)` for any other combination (non-200 or invalid JSON)
 ///
 /// Expected JSON shape:
@@ -44,7 +44,7 @@ internal final class FeedItemsMapper {
     
     /// Maps `(data, response)` into `RemoteFeedLoader.Result`.
     /// - Requires: `response.statusCode == 200` and a JSON payload matching `Root`.
-    /// - Returns: `.success([FeedItem])` on valid input; otherwise `.failure(.invalidData)`.
+    /// - Returns: `.success([FeedImage])` on valid input; otherwise `.failure(.invalidData)`.
     ///
     /// Examples:
     /// - Valid (status 200):

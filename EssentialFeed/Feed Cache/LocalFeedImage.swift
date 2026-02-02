@@ -1,5 +1,5 @@
 //
-//  LocalFeedItem.swift
+//  LocalFeedImage.swift
 //  EssentialFeed
 //
 //  Created by Amin faruq on 02/02/26.
@@ -7,17 +7,17 @@
 
 import Foundation
 
-public struct LocalFeedItem: Equatable {
+public struct LocalFeedImage: Equatable {
     public let id: UUID
     public let description: String?
     public let location: String?
-    public let imageURL: URL
+    public let url: URL
     
     /// Creates a new immutable feed item. All properties are required except `description` and `location`.
-    public init(id: UUID, description: String?, location: String?, imageURL: URL) {
+    public init(id: UUID, description: String?, location: String?, url: URL) {
         self.id = id
         self.description = description
         self.location = location
-        self.imageURL = imageURL
+        self.url = url
     }
 }

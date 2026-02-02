@@ -92,7 +92,7 @@ final class LoadFeedFromRemoteUseCaseTests: XCTestCase {
         })
     }
     
-    // For a 200 response with valid JSON, `load()` should map the payload into an array of `FeedItem`.
+    // For a 200 response with valid JSON, `load()` should map the payload into an array of `FeedImage`.
     func test_load_deliversItemsOn200HTTPResponseWithJSONItems() {
         
         let (sut, client) = makeSUT()
@@ -156,11 +156,11 @@ final class LoadFeedFromRemoteUseCaseTests: XCTestCase {
         return .failure(error)
     }
     
-    /// Creates a `FeedItem` and its equivalent JSON representation.
+    /// Creates a `FeedImage` and its equivalent JSON representation.
     /// Nil `description`/`location` values are removed from the JSON using `compactMapValues(_:)`.
-    private func makeItem(id: UUID, description: String? = nil, location: String? = nil, imageURL: URL) -> (model: FeedItem, json: [String: Any]) {
+    private func makeItem(id: UUID, description: String? = nil, location: String? = nil, imageURL: URL) -> (model: FeedImage, json: [String: Any]) {
         
-        let item = FeedItem(id: id, description: description, location: location, imageURL: imageURL)
+        let item = FeedImage(id: id, description: description, location: location, url: imageURL)
         
         let json = [
             "id": id.uuidString,

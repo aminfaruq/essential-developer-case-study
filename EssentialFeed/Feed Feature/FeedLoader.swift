@@ -8,10 +8,10 @@
 import Foundation
 
 /// Result of a feed loading operation.
-/// - `.success([FeedItem])`: The loader produced a list of domain items
+/// - `.success([FeedImage])`: The loader produced a list of domain items
 /// - `.failure(Error)`: The loader failed with a domain-relevant error
 public enum LoadFeedResult {
-    case success([FeedItem])
+    case success([FeedImage])
     case failure(Error)
 }
 
