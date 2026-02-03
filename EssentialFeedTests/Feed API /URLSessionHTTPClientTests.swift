@@ -149,14 +149,8 @@ class URLSessionHTTPClientTests: XCTestCase {
         return receivedResult
     }
     
-    /// URL sembarang untuk keperluan test.
-    private func anyURL() -> URL { URL(string: "http://any-url.com")! }
-    
     /// Data sembarang untuk keperluan test.
     private func anyData() -> Data { Data(_: "any data".utf8) }
-    
-    /// Error sembarang untuk keperluan test.
-    private func anyNSError() -> NSError { NSError(domain: "any error", code: 0) }
     
     /// `URLResponse` non-HTTP (tidak memiliki status code) untuk kasus tidak valid.
     private func nonHTTPURLResponse() ->  URLResponse { URLResponse(url: anyURL(), mimeType: nil, expectedContentLength: 0, textEncodingName: nil) }
