@@ -42,7 +42,6 @@ class CodableFeedStore {
     }
         
     func retrieve(completion: @escaping  FeedStore.RetrievalCompletion) {
-        
         guard let data = try? Data(contentsOf: storeURL) else {
             return completion(.empty)
         }
@@ -67,13 +66,13 @@ final class CodableFeedStoreTests: XCTestCase {
     override func setUp() {
         super.setUp()
         
-        try? FileManager.default.removeItem(at: testSpecificStoreURL())
+        setupEmptyStoreState()
     }
     
     override func tearDown() {
         super.tearDown()
         
-        try? FileManager.default.removeItem(at: testSpecificStoreURL())
+        undoStoreSideEffects()
     }
     
     func test_retrieve_deliversEmptyOnEmptyCache() {
@@ -147,6 +146,18 @@ final class CodableFeedStoreTests: XCTestCase {
         let sut = CodableFeedStore(storeURL: testSpecificStoreURL())
         trackForMemoryLeaks(sut, file: file, line: line)
         return sut
+    }
+    
+    private func setupEmptyStoreState() {
+        deletesStoreArtifacts()
+    }
+    
+    private func undoStoreSideEffects() {
+        deletesStoreArtifacts()
+    }
+    
+    private func deletesStoreArtifacts() {
+        try? FileManager.default.removeItem(at: testSpecificStoreURL())
     }
     
     private func testSpecificStoreURL() -> URL {
