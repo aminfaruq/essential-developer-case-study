@@ -29,5 +29,8 @@ public enum HTTPClientResult {
 /// - The client delivers either a `.success(Data, HTTPURLResponse)` or a `.failure(Error)`
 public protocol HTTPClient {
     /// Performs an asynchronous HTTP GET to the specified URL and completes with the raw result.
+    
+    /// The completion handler can be invoked in any thread.
+    /// Clients are responsible to dispatch to appropriate threads, if needed.
     func get(from url: URL, completion: @escaping (HTTPClientResult) -> Void)
 }
