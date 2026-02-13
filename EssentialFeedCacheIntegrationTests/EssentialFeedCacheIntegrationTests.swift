@@ -84,7 +84,7 @@ final class EssentialFeedCacheIntegrationTests: XCTestCase {
             case let .failure(error):
                 XCTFail("Expected successful feed result, got \(error) instead", file: file, line: line)
                 
-            default:
+            @unknown default:
                 XCTFail("Received an unknown result case: \(result)")
             }
             

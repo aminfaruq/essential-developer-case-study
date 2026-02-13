@@ -10,10 +10,11 @@ import Foundation
 /// Result of a feed loading operation.
 /// - `.success([FeedImage])`: The loader produced a list of domain items
 /// - `.failure(Error)`: The loader failed with a domain-relevant error
-public enum LoadFeedResult {
+/*public enum LoadFeedResult {
     case success([FeedImage])
     case failure(Error)
-}
+}*/
+public typealias LoadFeedResult = Result<[FeedImage], Error>
 
 /// A use-case abstraction that loads the feed asynchronously.
 ///
