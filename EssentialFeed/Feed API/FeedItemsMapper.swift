@@ -31,14 +31,14 @@ import Foundation
 ///   ]
 /// }
 
-internal final class FeedItemsMapper {
+final class FeedItemsMapper {
     
     /// Top-level payload that wraps an array of `Item` DTOs.
     private struct Root: Decodable {
         let items: [RemoteFeedItem]
     }
     
-     
+    
     /// Only HTTP 200 responses are considered valid for mapping.
     static var OK_200: Int { return 200 }
     
@@ -63,7 +63,7 @@ internal final class FeedItemsMapper {
     ///   {
     ///     "items": [ { "description": "missing id & image" } ]
     ///   }
-    internal static func map(_ data: Data, from response: HTTPURLResponse) throws -> [RemoteFeedItem] {
+    static func map(_ data: Data, from response: HTTPURLResponse) throws -> [RemoteFeedItem] {
         guard response.statusCode == OK_200,
               let root = try? JSONDecoder().decode(Root.self, from: data) else {
             throw RemoteFeedLoader.Error.invalidData
