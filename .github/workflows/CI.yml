@@ -5,9 +5,9 @@ name: CI
 
 on:
   push:
-    branches: [ "persistence-module" ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ "persistence-module" ]
+    branches: [ "master" ]
 
 jobs:
   build:
