@@ -1,5 +1,5 @@
 //
-//  RemoteFeedLoaderTests.swift
+//  LoadFeedFromRemoteUseCaseTests.swift
 //  EssentialFeedTests
 //
 //  Created by Amin faruq on 23/12/25.
@@ -8,7 +8,7 @@
 import XCTest
 import EssentialFeed
 
-final class RemoteFeedLoaderTests: XCTestCase {
+final class LoadFeedFromRemoteUseCaseTests: XCTestCase {
     // Unit tests for `RemoteFeedLoader`.
     // Goal: Ensure the interaction with `HTTPClient` and the delivered results (success/failure)
     // match different HTTP response and data conditions.
@@ -92,7 +92,7 @@ final class RemoteFeedLoaderTests: XCTestCase {
         })
     }
     
-    // For a 200 response with valid JSON, `load()` should map the payload into an array of `FeedItem`.
+    // For a 200 response with valid JSON, `load()` should map the payload into an array of `FeedImage`.
     func test_load_deliversItemsOn200HTTPResponseWithJSONItems() {
         
         let (sut, client) = makeSUT()
@@ -156,11 +156,11 @@ final class RemoteFeedLoaderTests: XCTestCase {
         return .failure(error)
     }
     
-    /// Creates a `FeedItem` and its equivalent JSON representation.
+    /// Creates a `FeedImage` and its equivalent JSON representation.
     /// Nil `description`/`location` values are removed from the JSON using `compactMapValues(_:)`.
-    private func makeItem(id: UUID, description: String? = nil, location: String? = nil, imageURL: URL) -> (model: FeedItem, json: [String: Any]) {
+    private func makeItem(id: UUID, description: String? = nil, location: String? = nil, imageURL: URL) -> (model: FeedImage, json: [String: Any]) {
         
-        let item = FeedItem(id: id, description: description, location: location, imageURL: imageURL)
+        let item = FeedImage(id: id, description: description, location: location, url: imageURL)
         
         let json = [
             "id": id.uuidString,
@@ -216,7 +216,7 @@ final class RemoteFeedLoaderTests: XCTestCase {
     private class HTTPClientSpy: HTTPClient {
         
         // Stores the (URL, completion) pair for each performed request.
-        private var messages = [(url: URL, completion: (HTTPClientResult) -> Void)]()
+        private var messages = [(url: URL, completion: (HTTPClient.Result) -> Void)]()
         
         // List of requested URLs (order matters for verification).
         var requestedURLs: [URL] {
@@ -224,7 +224,7 @@ final class RemoteFeedLoaderTests: XCTestCase {
         }
         
         // Records the request without performing real network calls.
-        func get(from url: URL, completion: @escaping (HTTPClientResult) -> Void) {
+        func get(from url: URL, completion: @escaping (HTTPClient.Result) -> Void) {
             messages.append((url, completion))
         }
         
@@ -241,7 +241,7 @@ final class RemoteFeedLoaderTests: XCTestCase {
                 httpVersion: nil,
                 headerFields: nil)!
             
-            messages[index].completion(.success(data, response))
+            messages[index].completion(.success((data, response)))
         }
     }
 }

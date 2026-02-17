@@ -34,15 +34,17 @@ public class URLSessionHTTPClient: HTTPClient {
     ///   - `data != nil` and `response is HTTPURLResponse` → `.success(data, response)`
     ///   - otherwise → `.failure(UnexpectedValuesRepresentation())`
     /// - Important: No threading guarantees; the completion may be invoked on an arbitrary queue.
-    public func get(from url: URL, completion: @escaping (HTTPClientResult) -> Void) {
+    public func get(from url: URL, completion: @escaping (HTTPClient.Result) -> Void) {
         session.dataTask(with: url) { data, response, error in
-            if let error = error {
-                completion(.failure(error))
-            } else if let data = data, let response = response as? HTTPURLResponse {
-                completion(.success(data, response))
-            } else {
-                completion(.failure(UnexpectedValuesRepresentation()))
-            }
+            completion(Result {
+                if let error = error {
+                    throw error
+                } else if let data = data, let response = response as? HTTPURLResponse {
+                    return (data, response)
+                } else {
+                    throw UnexpectedValuesRepresentation()
+                }
+            })
         }.resume()
     }
 }

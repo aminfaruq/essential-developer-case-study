@@ -7,16 +7,16 @@
 
 import Foundation
 
-/// Maps raw HTTP payloads into domain `[FeedItem]` while enforcing transport and schema constraints.
+/// Maps raw HTTP payloads into domain `[FeedImage]` while enforcing transport and schema constraints.
 ///
 /// Responsibilities:
 /// - Accept an HTTP response and its raw `Data`
 /// - Validate the HTTP status code (200-only)
 /// - Decode the expected JSON payload into internal DTOs
-/// - Map DTOs into the pure domain model `FeedItem`
+/// - Map DTOs into the pure domain model `FeedImage`
 ///
 /// Contract:
-/// - Returns `.success([FeedItem])` when `statusCode == 200` and decoding succeeds
+/// - Returns `.success([FeedImage])` when `statusCode == 200` and decoding succeeds
 /// - Returns `.failure(.invalidData)` for any other combination (non-200 or invalid JSON)
 ///
 /// Expected JSON shape:
@@ -30,37 +30,21 @@ import Foundation
 ///     }
 ///   ]
 /// }
-internal final class FeedItemsMapper {
+
+final class FeedItemsMapper {
     
     /// Top-level payload that wraps an array of `Item` DTOs.
     private struct Root: Decodable {
-        let items: [Item]
-        
-        /// Transforms decoded DTOs into domain models.
-        var feed: [FeedItem] {
-            return items.map({ $0.item })
-        }
+        let items: [RemoteFeedItem]
     }
     
-    /// Data Transfer Object (DTO) that mirrors the JSON fields for a single feed entry.
-    private struct Item: Decodable {
-        let id: UUID
-        let description: String?
-        let location: String?
-        let image: URL
-        
-        /// Maps this DTO into the domain `FeedItem`.
-        var item: FeedItem {
-            return FeedItem(id: id, description: description, location: location, imageURL: image)
-        }
-    }
-     
+    
     /// Only HTTP 200 responses are considered valid for mapping.
     static var OK_200: Int { return 200 }
     
     /// Maps `(data, response)` into `RemoteFeedLoader.Result`.
     /// - Requires: `response.statusCode == 200` and a JSON payload matching `Root`.
-    /// - Returns: `.success([FeedItem])` on valid input; otherwise `.failure(.invalidData)`.
+    /// - Returns: `.success([FeedImage])` on valid input; otherwise `.failure(.invalidData)`.
     ///
     /// Examples:
     /// - Valid (status 200):
@@ -79,13 +63,13 @@ internal final class FeedItemsMapper {
     ///   {
     ///     "items": [ { "description": "missing id & image" } ]
     ///   }
-    internal static func map(_ data: Data, from response: HTTPURLResponse) -> RemoteFeedLoader.Result {
+    static func map(_ data: Data, from response: HTTPURLResponse) throws -> [RemoteFeedItem] {
         guard response.statusCode == OK_200,
               let root = try? JSONDecoder().decode(Root.self, from: data) else {
-            return .failure(RemoteFeedLoader.Error.invalidData)
+            throw RemoteFeedLoader.Error.invalidData
         }
         
-        return .success(root.feed)
+        return root.items
     }
 }
 
