@@ -23,6 +23,7 @@ final class FeedViewController: UITableViewController{
         
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(load), for: .valueChanged)
+        refreshControl?.beginRefreshing()
         load()
     }
     
@@ -32,7 +33,7 @@ final class FeedViewController: UITableViewController{
 }
 
 final class FeedViewControllerTests: XCTestCase {
-
+    
     func test_init_doesNotLoadFeed() {
         let (_, loader) = makeSUT()
         
@@ -60,6 +61,15 @@ final class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(loader.loadCallCount, 3)
     }
     
+    func test_viewDidLoad_showsLoadingIndicator() {
+        let (sut, _) = makeSUT()
+        
+        
+        sut.loadViewIfNeeded()
+        
+        XCTAssertEqual(sut.refreshControl?.isRefreshing, true)
+    }
+    
     // MARK: - Helpers
     
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: LoaderSpy) {
@@ -78,7 +88,7 @@ final class FeedViewControllerTests: XCTestCase {
             loadCallCount += 1
         }
     }
-
+    
 }
 
 
@@ -89,3 +99,4 @@ private extension UIRefreshControl {
         }
     }
 }
+
