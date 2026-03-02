@@ -16,21 +16,21 @@ final class FeedRefreshViewController: NSObject {
         return view
     }()
     
-    private var feedloader: FeedLoader
+    private var feedLoader: FeedLoader
     
-    init(feedloader: FeedLoader) {
-        self.feedloader = feedloader
+    init(feedLoader: FeedLoader) {
+        self.feedLoader = feedLoader
     }
     
     var onRefresh: (([FeedImage]) -> Void)?
-    
+
     @objc func refresh() {
         view.beginRefreshing()
-        feedloader.load(completion: { [weak self] result in
+        feedLoader.load { [weak self] result in
             if let feed = try? result.get() {
                 self?.onRefresh?(feed)
             }
             self?.view.endRefreshing()
-        })
+        }
     }
 }
