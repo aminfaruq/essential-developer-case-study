@@ -5,7 +5,6 @@
 //  Created by Amin faruq on 03/03/26.
 //
 
-import Foundation
 import EssentialFeed
 
 final class FeedViewModel {
@@ -19,13 +18,6 @@ final class FeedViewModel {
     
     var onLoadingStateChange: Observer<Bool>?
     var onFeedLoad: Observer<[FeedImage]>?
-    
-//    var onChange: ((FeedViewModel) -> Void)?
-//    var onFeedLoad: (([FeedImage]) -> Void)?
-//    
-//    private(set) var isLoading: Bool = false {
-//        didSet { onChange?(self) }
-//    }
     
     func loadFeed() {
         onLoadingStateChange?(true)
