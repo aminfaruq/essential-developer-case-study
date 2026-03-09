@@ -25,6 +25,8 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
     
     override public func viewDidLoad() {
         super.viewDidLoad()
+        
+        title = "My Feed"
         registerTableView()
         refreshControl = refreshController?.view
         refreshController?.refresh()
