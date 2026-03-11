@@ -7,8 +7,9 @@
 
 import UIKit
 
-public final class FeedViewController: UITableViewController, UITableViewDataSourcePrefetching {
+public final class FeedViewController: UITableViewController, UITableViewDataSourcePrefetching, FeedErrorView {
     private var refreshController: FeedRefreshViewController?
+    public let errorView = ErrorView()
     var tableModel = [FeedImageCellController]() {
         didSet { tableView.reloadData() }
     }
@@ -19,8 +20,12 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
     }
     
     private func registerTableView() {
+        errorView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 50)
+        
+        tableView.tableHeaderView = errorView
         tableView.register(FeedImageCell.self, forCellReuseIdentifier: "FeedImageCell")
         tableView.prefetchDataSource = self
+        tableView.tableHeaderView?.contentMode = .scaleToFill
     }
     
     override public func viewDidLoad() {
@@ -29,6 +34,10 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
         registerTableView()
         refreshControl = refreshController?.view
         refreshController?.refresh()
+    }
+    
+    func display(_ viewModel: FeedErrorViewModel) {
+        errorView.message = viewModel.message
     }
     
     public override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -61,5 +70,11 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
     
     private func cancelCellControllerLoad(forRowAt indexPath: IndexPath) {
         cellController(forRowAt: indexPath).cancelLoad()
+    }
+    
+    @objc private func hideErrorView() {
+        tableView.beginUpdates()
+        tableView.tableHeaderView = nil
+        tableView.endUpdates()
     }
 }

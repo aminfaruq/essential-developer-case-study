@@ -100,4 +100,23 @@ extension FeedViewController {
     }
     
     private var feedImagesSection: Int { 0 }
+    
+    // MARK: - Error View Helpers
+    var errorMessage: String? {
+        return errorView?.message
+    }
+
+    private var errorView: ErrorView? {
+        return view.find(ErrorView.self)
+    }
 }
+private extension UIView {
+    func find<T: UIView>(_ type: T.Type) -> T? {
+        if let view = self as? T { return view }
+        for subview in subviews {
+            if let match = subview.find(type) { return match }
+        }
+        return nil
+    }
+}
+
