@@ -17,7 +17,7 @@ import Foundation
 ///
 /// Conforms to `Equatable` to enable reliable comparisons in tests and app logic
 /// (e.g., asserting expected results, detecting changes, removing specific items).
-public struct FeedImage: Equatable {
+public struct FeedImage: Hashable {
     public let id: UUID
     public let description: String?
     public let location: String?

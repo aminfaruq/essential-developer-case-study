@@ -61,11 +61,14 @@ public class CodableFeedStore: FeedStore {
     
     public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
         let storeURL = self.storeURL
+        let directoryURL = storeURL.deletingLastPathComponent()
         
         queue.async(flags: .barrier) {
             do {
-                let encoder = JSONEncoder()
+                // Ensure parent directory exists before writing the file
+                try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
                 
+                let encoder = JSONEncoder()
                 let cache = Cache(feed: feed.map(CodableFeedImage.init), timestamp: timestamp)
                 let encoded = try encoder.encode(cache)
                 try encoded.write(to: storeURL)
@@ -80,15 +83,18 @@ public class CodableFeedStore: FeedStore {
         let storeURL = self.storeURL
         
         queue.async(flags: .barrier) {
-            guard FileManager.default.fileExists(atPath: storeURL.path) else {
-                return completion(.success(()))
-            }
-            
             do {
                 try FileManager.default.removeItem(at: storeURL)
                 completion(.success(()))
             } catch {
-                completion(.failure(error))
+                let nsError = error as NSError
+                let isNoSuchFileCocoa = (nsError.domain == NSCocoaErrorDomain && nsError.code == NSFileNoSuchFileError)
+                let isNoSuchFilePosix = (nsError.domain == NSPOSIXErrorDomain && nsError.code == ENOENT)
+                if isNoSuchFileCocoa || isNoSuchFilePosix {
+                    completion(.success(()))
+                } else {
+                    completion(.failure(error))
+                }
             }
         }
     }

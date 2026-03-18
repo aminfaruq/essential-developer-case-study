@@ -5,9 +5,9 @@ name: CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "ui-module" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "ui-module" ]
 
 jobs:
   build:
