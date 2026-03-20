@@ -16,7 +16,7 @@ import Foundation
 /// Notes:
 /// - This type does not enforce a specific dispatch queue for the completion; callers should dispatch as needed
 /// - Status code validation and JSON decoding are intentionally delegated to higher layers (e.g., mappers/use cases)
-public class URLSessionHTTPClient: HTTPClient {
+public final class URLSessionHTTPClient: HTTPClient {
     /// Injected `URLSession` to enable configuration and testing (default: `.shared`).
     private let session: URLSession
     
@@ -28,14 +28,22 @@ public class URLSessionHTTPClient: HTTPClient {
     /// Internal sentinel error used when `URLSession` returns an unexpected combination of values.
     private struct UnexpectedValuesRepresentation: Error {}
     
+    private struct URLSessionTaskWrapper: HTTPClientTask {
+        let wrapped: URLSessionTask
+        
+        func cancel() {
+            wrapped.cancel()
+        }
+    }
+    
     /// Performs an HTTP GET request and completes with `HTTPClientResult`.
     /// - Maps:
     ///   - `error != nil` → `.failure(error)` (transport/request-level failures)
     ///   - `data != nil` and `response is HTTPURLResponse` → `.success(data, response)`
     ///   - otherwise → `.failure(UnexpectedValuesRepresentation())`
     /// - Important: No threading guarantees; the completion may be invoked on an arbitrary queue.
-    public func get(from url: URL, completion: @escaping (HTTPClient.Result) -> Void) {
-        session.dataTask(with: url) { data, response, error in
+    public func get(from url: URL, completion: @escaping (HTTPClient.Result) -> Void) -> HTTPClientTask {
+        let task = session.dataTask(with: url) { data, response, error in
             completion(Result {
                 if let error = error {
                     throw error
@@ -45,7 +53,10 @@ public class URLSessionHTTPClient: HTTPClient {
                     throw UnexpectedValuesRepresentation()
                 }
             })
-        }.resume()
+        }
+        
+        task.resume()
+        return URLSessionTaskWrapper(wrapped: task)
     }
 }
 

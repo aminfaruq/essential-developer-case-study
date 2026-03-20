@@ -215,8 +215,14 @@ final class LoadFeedFromRemoteUseCaseTests: XCTestCase {
     /// with success or failure in a controlled way during tests.
     private class HTTPClientSpy: HTTPClient {
         
+        private struct Task: HTTPClientTask {
+            func cancel() {}
+        }
+        
+        
         // Stores the (URL, completion) pair for each performed request.
         private var messages = [(url: URL, completion: (HTTPClient.Result) -> Void)]()
+        private(set) var cancelledURLs = [URL]()
         
         // List of requested URLs (order matters for verification).
         var requestedURLs: [URL] {
@@ -224,8 +230,10 @@ final class LoadFeedFromRemoteUseCaseTests: XCTestCase {
         }
         
         // Records the request without performing real network calls.
-        func get(from url: URL, completion: @escaping (HTTPClient.Result) -> Void) {
+        func get(from url: URL, completion: @escaping (HTTPClient.Result) -> Void) -> HTTPClientTask {
             messages.append((url, completion))
+            
+            return Task()
         }
         
         // Simulates completing the request with an error at a given index (default: 0).
