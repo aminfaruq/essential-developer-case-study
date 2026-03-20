@@ -170,26 +170,32 @@ class URLSessionHTTPClientTests: XCTestCase {
     /// Allows observing requests and/or injecting data/response/error without real networking.
     private class URLProtocolStub: URLProtocol {
         
-        // Holds the stubbed values returned when a request is intercepted.
-        private static var stub: Stub?
-        // Optional callback to observe each incoming request (e.g., verify URL/method).
-        private static var requestObserver: ((URLRequest) -> Void)?
-        
         // Container for possible stub values: data, response, and/or error.
         private struct Stub {
             let data: Data?
             let response: URLResponse?
             let error: Error?
+            let requestObserver: ((URLRequest) -> Void)?
         }
+        
+        // Holds the stubbed values returned when a request is intercepted.
+        private static var _stub: Stub?
+        private static var stub: Stub? {
+            get { return queue.sync { _stub } }
+            
+            set { queue.sync { _stub = newValue } }
+        }
+        
+        private static let queue = DispatchQueue(label: "URLProtocol.queue")
         
         /// Sets the global stub values to be used when a request is intercepted.
         static func stub(data: Data?, response: URLResponse?, error: Error?) {
-            stub = Stub(data: data, response: response, error: error)
+            stub = Stub(data: data, response: response, error: error, requestObserver: nil)
         }
         
         /// Registers an observer to receive each incoming `URLRequest`.
         static func observeRequests(observer: @escaping (URLRequest) -> Void) {
-            requestObserver = observer
+            stub = Stub(data: nil, response: nil, error: nil, requestObserver: observer)
         }
         
         /// Starts intercepting all requests by registering the `URLProtocolStub` class.
@@ -202,7 +208,6 @@ class URLSessionHTTPClientTests: XCTestCase {
             URLProtocol.unregisterClass(URLProtocolStub.self)
             
             stub = nil
-            requestObserver = nil
         }
         
         /// Intercept all requests (return `true` so the URLLoadingSystem uses this stub).
@@ -216,14 +221,6 @@ class URLSessionHTTPClientTests: XCTestCase {
         }
         
         override func startLoading() {
-            // If there's an observer, notify it with the request and finish loading.
-            if let requestObserver = URLProtocolStub.requestObserver {
-                client?.urlProtocolDidFinishLoading(self)
-                return requestObserver(request)
-            }
-            
-            // If there's stubbed data, send it to the client.
-            
             guard let stub = URLProtocolStub.stub else { return }
             
             if let data = stub.data {
@@ -243,6 +240,7 @@ class URLSessionHTTPClientTests: XCTestCase {
                 client?.urlProtocolDidFinishLoading(self)
             }
             
+            stub.requestObserver?(request)
         }
         
         /// Nothing special to do on stop; required to fulfill the `URLProtocol` contract.
