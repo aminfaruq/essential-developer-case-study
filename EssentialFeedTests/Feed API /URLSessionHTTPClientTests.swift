@@ -15,18 +15,11 @@ class URLSessionHTTPClientTests: XCTestCase {
     // Strategy: Use `URLProtocolStub` to intercept network requests and inject
     // stubbed data/response/error, as well as observe the outgoing requests.
     
-    // Start intercepting all network requests via `URLProtocolStub`.
-    override func setUp() {
-        super.setUp()
-        
-        URLProtocolStub.startInterceptingRequests()
-    }
-    
     // Stop intercepting and clean up the stub/observer so other tests aren't affected.
     override func tearDown() {
         super.tearDown()
         
-        URLProtocolStub.stopInterceptingRequests()
+        URLProtocolStub.removeStub()
     }
     
     // Verifies that `get(from:)` performs a GET request to the given URL.
@@ -48,7 +41,7 @@ class URLSessionHTTPClientTests: XCTestCase {
     func test_cancelGetFromURLTask_cancelsURLRequest() {
         let receivedError = resultErrorFor(taskHandler: { $0.cancel() }) as NSError?
         
-        XCTAssertEqual(receivedError?.code, URLError.cancelled.rawValue)        
+        XCTAssertEqual(receivedError?.code, URLError.cancelled.rawValue)
     }
     
     // If a request-level error occurs (e.g., connection fails), the client should return the same error.
@@ -104,7 +97,11 @@ class URLSessionHTTPClientTests: XCTestCase {
     
     /// Creates a `URLSessionHTTPClient` instance as the SUT and enables memory leak tracking.
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> HTTPClient {
-        let sut = URLSessionHTTPClient()
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [URLProtocolStub.self]
+        let session = URLSession(configuration: configuration)
+        
+        let sut = URLSessionHTTPClient(session: session)
         trackForMemoryLeaks(sut, file: file, line: line)
         return sut
     }
@@ -198,15 +195,8 @@ class URLSessionHTTPClientTests: XCTestCase {
             stub = Stub(data: nil, response: nil, error: nil, requestObserver: observer)
         }
         
-        /// Starts intercepting all requests by registering the `URLProtocolStub` class.
-        static func startInterceptingRequests() {
-            URLProtocol.registerClass(URLProtocolStub.self)
-        }
-        
         /// Stops intercepting and clears the stub/observer state.
-        static func stopInterceptingRequests() {
-            URLProtocol.unregisterClass(URLProtocolStub.self)
-            
+        static func removeStub() {
             stub = nil
         }
         

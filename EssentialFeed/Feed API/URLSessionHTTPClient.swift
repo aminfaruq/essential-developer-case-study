@@ -21,7 +21,7 @@ public final class URLSessionHTTPClient: HTTPClient {
     private let session: URLSession
     
     /// Creates an HTTP client backed by the provided `URLSession`.
-    public init(session: URLSession = .shared) {
+    public init(session: URLSession) {
         self.session = session
     }
     
