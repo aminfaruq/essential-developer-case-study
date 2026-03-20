@@ -46,23 +46,9 @@ class URLSessionHTTPClientTests: XCTestCase {
     }
     
     func test_cancelGetFromURLTask_cancelsURLRequest() {
-        let url = anyURL()
-        let exp = expectation(description: "Wait for request")
+        let receivedError = resultErrorFor(taskHandler: { $0.cancel() }) as NSError?
         
-        let task = makeSUT().get(from: url) { result in
-            switch result {
-            case let .failure(error as NSError) where error.code == URLError.cancelled.rawValue:
-                break
-                
-            default:
-                XCTFail("Expected cancelled result, got \(result) instead")
-            }
-            exp.fulfill()
-        }
-        
-        task.cancel()
-        
-        wait(for: [exp], timeout: 1.0)
+        XCTAssertEqual(receivedError?.code, URLError.cancelled.rawValue)        
     }
     
     // If a request-level error occurs (e.g., connection fails), the client should return the same error.
