@@ -153,11 +153,8 @@ class URLSessionHTTPClientTests: XCTestCase {
         return receivedResult
     }
     
-    /// Arbitrary data for testing purposes.
-    private func anyData() -> Data { Data(_: "any data".utf8) }
-    
     /// Non-HTTP `URLResponse` (no status code) for invalid cases.
-    private func nonHTTPURLResponse() ->  URLResponse { URLResponse(url: anyURL(), mimeType: nil, expectedContentLength: 0, textEncodingName: nil) }
+    private func nonHTTPURLResponse() -> URLResponse { URLResponse(url: anyURL(), mimeType: nil, expectedContentLength: 0, textEncodingName: nil) }
     
     /// Valid `HTTPURLResponse` (default status code 200) for valid cases.
     private func anyHTTPURLResponse() -> HTTPURLResponse { HTTPURLResponse(url: anyURL(), mimeType: nil, expectedContentLength: 0, textEncodingName: nil) }
