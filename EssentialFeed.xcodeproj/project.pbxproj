@@ -92,6 +92,13 @@
 			);
 			target = 8320E5882F288ABB0001FB45 /* EssentialFeedAPIEndToEndTests */;
 		};
+		833B23072F73D18500D34400 /* Exceptions for "EssentialFeed" folder in "EssentialFeedTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Feed API/Helpers/URLProtocolStub.swift",
+			);
+			target = 8340C7572EF993360015D9EF /* EssentialFeedTests */;
+		};
 		8371A92D2F3DB8C3000E3134 /* Exceptions for "EssentialFeedTests" folder in "EssentialFeedCacheIntegrationTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -118,6 +125,9 @@
 		};
 		8340C7522EF993360015D9EF /* EssentialFeed */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				833B23072F73D18500D34400 /* Exceptions for "EssentialFeed" folder in "EssentialFeedTests" target */,
+			);
 			path = EssentialFeed;
 			sourceTree = "<group>";
 		};
