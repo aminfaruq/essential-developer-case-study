@@ -1,5 +1,5 @@
 //
-//  RemoteImageDataLoaderTests.swift
+//  LoadFeedImageDataFromRemoteUseCaseTests.swift
 //  EssentialFeed
 //
 //  Created by Amin faruq on 19/03/26.
@@ -8,7 +8,7 @@
 import XCTest
 import EssentialFeed
 
-final class RemoteImageDataLoaderTests: XCTestCase {
+final class LoadFeedImageDataFromRemoteUseCaseTests: XCTestCase {
     
     func test_init_doesNotPerformAnyURLRequest() {
         let (_, client) = makeSUT()
