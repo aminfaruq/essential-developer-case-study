@@ -75,7 +75,6 @@ final class ValidateFeedCacheUseCaseTests: XCTestCase {
         let deletionError = anyNSError()
         
         expect(sut, toCompleteWith: .failure(deletionError), when: {
-            
             store.completeRetrieval(with: anyNSError())
             
             store.completeDeletion(with: deletionError)
@@ -86,10 +85,17 @@ final class ValidateFeedCacheUseCaseTests: XCTestCase {
         let (sut, store) = makeSUT()
         
         expect(sut, toCompleteWith: .success(()), when: {
-            
             store.completeRetrieval(with: anyNSError())
             
             store.completeDeletionSuccessfully()
+        })
+    }
+    
+    func test_validateCache_succeedsOnEmptyCache() {
+        let (sut, store) = makeSUT()
+        
+        expect(sut, toCompleteWith: .success(()), when: {
+            store.completeRetrievalWithEmptyCache()
         })
     }
     
