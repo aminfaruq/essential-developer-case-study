@@ -11,7 +11,11 @@ internal import SnapKit
 public final class FeedImageCell: UITableViewCell {
     public let locationContainer = UIStackView()
     public let locationLabel = UILabel()
-    public let pinImageView = UIImageView(image: UIImage(named: "pin"))
+    public let pinImageView: UIImageView = {
+        let bundle = Bundle(for: FeedImageCell.self)
+        let image = UIImage(named: "pin", in: bundle, compatibleWith: nil)
+        return UIImageView(image: image)
+    }()
     public let descriptionLabel = UILabel()
     public let feedImageContainer = UIView()
     public let feedImageView = UIImageView()
