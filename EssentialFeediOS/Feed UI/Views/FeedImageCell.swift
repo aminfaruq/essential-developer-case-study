@@ -72,8 +72,9 @@ public final class FeedImageCell: UITableViewCell {
         feedImageContainer.addSubview(feedImageView)
         feedImageContainer.addSubview(feedImageRetryButton)
         
-        feedImageView.contentMode = .scaleAspectFit
-        
+        feedImageView.contentMode = .scaleToFill
+        feedImageView.layer.cornerRadius = 8.0
+        feedImageView.clipsToBounds = true
         // MARK: - Setup description label -
         descriptionLabel.numberOfLines = 6
         descriptionLabel.font = UIFont.systemFont(ofSize: 16)
