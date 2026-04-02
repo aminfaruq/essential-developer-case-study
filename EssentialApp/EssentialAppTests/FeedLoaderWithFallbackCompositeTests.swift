@@ -7,56 +7,38 @@
 
 import XCTest
 import EssentialFeed
+import EssentialApp
 
-class FeedLoaderWithFallbackComposite: FeedLoader {
-    private let primary: FeedLoader
-    private let fallback: FeedLoader
-    
-    init(primary: FeedLoader, fallback: FeedLoader) {
-        self.primary = primary
-        self.fallback = fallback
-    }
-    
-    func load(completion: @escaping (FeedLoader.Result) -> Void) {
-        primary.load { [weak self] result in
-            switch result {
-            case .success:
-                completion(result)
-                
-            case .failure:
-                self?.fallback.load(completion: completion)
-            }
-        }
-    }
-}
-
+@MainActor
 final class FeedLoaderWithFallbackCompositeTests: XCTestCase {
     
-    func test_load_deliversPrimaryFeedOnPrimaryLoaderSuccess() {
+    func test_load_deliversPrimaryFeedOnPrimaryLoaderSuccess() async {
         let primaryFeed = uniqueFeed()
         let fallbackFeed = uniqueFeed()
-        let sut = makeSUT(primaryResult: .success(primaryFeed), fallbackResult: .success(fallbackFeed))
+        let sut = await makeSUT(primaryResult: .success(primaryFeed), fallbackResult: .success(fallbackFeed))
         
         expect(sut, toCompleteWith: .success(primaryFeed))
     }
     
-    func test_load_deliversFallbackFeedOnPrimaryLoaderFailure() {
+    func test_load_deliversFallbackFeedOnPrimaryLoaderFailure() async {
         let fallbackFeed = uniqueFeed()
-        let sut = makeSUT(primaryResult: .failure(anyNSError()), fallbackResult: .success(fallbackFeed))
+        let sut = await makeSUT(primaryResult: .failure(anyNSError()), fallbackResult: .success(fallbackFeed))
         
         expect(sut, toCompleteWith: .success(fallbackFeed))
     }
     
-    func test_load_deliversErrorOnBothPrimaryAndFallbackLoaderFailure() {
-        let sut = makeSUT(primaryResult: .failure(anyNSError()), fallbackResult: .failure(anyNSError()))
+    func test_load_deliversErrorOnBothPrimaryAndFallbackLoaderFailure() async {
+        let sut = await makeSUT(primaryResult: .failure(anyNSError()), fallbackResult: .failure(anyNSError()))
         
         expect(sut, toCompleteWith: .failure(anyNSError()))
     }
     
-    private func makeSUT(primaryResult: FeedLoader.Result, fallbackResult: FeedLoader.Result, file: StaticString = #filePath, line: UInt = #line) -> FeedLoader {
+    private func makeSUT(primaryResult: FeedLoader.Result, fallbackResult: FeedLoader.Result, file: StaticString = #filePath, line: UInt = #line) async -> FeedLoader {
         let primaryLoader = LoaderStub(result: primaryResult)
         let fallbackLoader = LoaderStub(result: fallbackResult)
-        let sut = FeedLoaderWithFallbackComposite(primary: primaryLoader, fallback: fallbackLoader)
+        let sut = await MainActor.run {
+            FeedLoaderWithFallbackComposite(primary: primaryLoader, fallback: fallbackLoader)
+        }
         trackForMemoryLeaks(primaryLoader, file: file, line: line)
         trackForMemoryLeaks(fallbackLoader, file: file, line: line)
         return sut
@@ -80,14 +62,14 @@ final class FeedLoaderWithFallbackCompositeTests: XCTestCase {
         
         sut.load { receivedResult in
             switch (receivedResult, expectedResult) {
-            case let (.success(receivedFeed), .success(expectedResult)):
-                XCTAssertEqual(receivedFeed, expectedResult, file: file, line: line)
+            case let (.success(receivedFeed), .success(expectedFeed)):
+                XCTAssertEqual(receivedFeed, expectedFeed, file: file, line: line)
                 
             case (.failure, .failure):
                 break
                 
             default:
-                break
+                XCTFail("Expected \(expectedResult), got \(receivedResult) instead", file: file, line: line)
             }
             
             exp.fulfill()
@@ -102,6 +84,7 @@ final class FeedLoaderWithFallbackCompositeTests: XCTestCase {
         }
     }
     
+    @MainActor
     private class LoaderStub: FeedLoader {
         private let result: FeedLoader.Result
         
