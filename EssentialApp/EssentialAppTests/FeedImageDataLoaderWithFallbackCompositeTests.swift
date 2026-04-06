@@ -6,52 +6,22 @@
 //
 
 import XCTest
+import EssentialApp
 import EssentialFeed
 
-class FeedImageDataLoaderWithFallbackComposite: FeedImageDataLoader {
-    private let primary: FeedImageDataLoader
-    private let fallback: FeedImageDataLoader
-    
-    init(primary: FeedImageDataLoader, fallback: FeedImageDataLoader) {
-        self.primary = primary
-        self.fallback = fallback
-    }
-    
-    private class TaskWrapper: FeedImageDataLoaderTask {
-        var wrapped: FeedImageDataLoaderTask?
-        
-        func cancel() {
-            wrapped?.cancel()
-        }
-    }
-    
-    func loadImageData(from url: URL, completion: @escaping (FeedImageDataLoader.Result) -> Void) -> FeedImageDataLoaderTask {
-        let task = TaskWrapper()
-        task.wrapped = primary.loadImageData(from: url, completion: { [weak self] result in
-            switch result {
-            case .success:
-                completion(result)
-                
-            case .failure:
-                task.wrapped = self?.fallback.loadImageData(from: url, completion: completion)
-            }
-        })
-        return task
-    }
-}
-
+@MainActor
 final class FeedImageDataLoaderWithFallbackCompositeTests: XCTestCase {
     
-    func test_init_doesNotLoadImageData() {
-        let (_, primaryLoader, fallbackLoader) = makeSUT()
+    func test_init_doesNotLoadImageData() async {
+        let (_, primaryLoader, fallbackLoader) = await makeSUT()
         
         XCTAssertTrue(primaryLoader.loadedURLs.isEmpty, "Expected no loaded URLs in the primary loader")
         XCTAssertTrue(fallbackLoader.loadedURLs.isEmpty, "Expected no loaded URLs in the primary loader")
     }
     
-    func test_loadImageData_loadsFromPrimaryLoaderFirst() {
+    func test_loadImageData_loadsFromPrimaryLoaderFirst() async {
         let url = anyURL()
-        let (sut, primaryLoader, fallbackLoader) = makeSUT()
+        let (sut, primaryLoader, fallbackLoader) = await makeSUT()
         
         _ = sut.loadImageData(from: url, completion: { _ in })
         
@@ -59,9 +29,9 @@ final class FeedImageDataLoaderWithFallbackCompositeTests: XCTestCase {
         XCTAssertTrue(fallbackLoader.loadedURLs.isEmpty, "Expected no loaded URLs in the ")
     }
     
-    func test_loadImageData_loadsFromFallbackOnPrimaryLoaderFailure() {
+    func test_loadImageData_loadsFromFallbackOnPrimaryLoaderFailure() async {
         let url = anyURL()
-        let (sut, primaryLoader, fallbackLoader) = makeSUT()
+        let (sut, primaryLoader, fallbackLoader) = await makeSUT()
         
         _ = sut.loadImageData(from: url, completion: { _ in })
         
@@ -71,9 +41,9 @@ final class FeedImageDataLoaderWithFallbackCompositeTests: XCTestCase {
         XCTAssertEqual(fallbackLoader.loadedURLs, [url], "Expected to load URL from fallback loader")
     }
     
-    func test_cancelLoadImageData_cancelsPrimaryLoaderTask() {
+    func test_cancelLoadImageData_cancelsPrimaryLoaderTask() async {
         let url = anyURL()
-        let (sut, primaryLoader, fallbackLoader) = makeSUT()
+        let (sut, primaryLoader, fallbackLoader) = await makeSUT()
         
         let task = sut.loadImageData(from: url, completion: { _ in })
         task.cancel()
@@ -82,9 +52,9 @@ final class FeedImageDataLoaderWithFallbackCompositeTests: XCTestCase {
         XCTAssertTrue(fallbackLoader.cancelledURLs.isEmpty, "Expected no cancelled URLs in the fallback loader")
     }
     
-    func test_cancelLoadImageData_cancelsFallbackLoaderTaskAfterPrimaryLoaderFailure() {
+    func test_cancelLoadImageData_cancelsFallbackLoaderTaskAfterPrimaryLoaderFailure() async {
         let url = anyURL()
-        let (sut, primaryLoader, fallbackLoader) = makeSUT()
+        let (sut, primaryLoader, fallbackLoader) = await makeSUT()
         
         let task = sut.loadImageData(from: url, completion: { _ in })
         primaryLoader.complete(with: anyNSError())
@@ -94,18 +64,18 @@ final class FeedImageDataLoaderWithFallbackCompositeTests: XCTestCase {
         XCTAssertEqual(fallbackLoader.cancelledURLs, [url], "Expected to cancel URL from fallback loader")
     }
     
-    func test_loadImageData_deliversPrimaryDataOnPrimaryLoaderSuccess() {
+    func test_loadImageData_deliversPrimaryDataOnPrimaryLoaderSuccess() async {
         let primaryData = anyData()
-        let (sut, primaryLoader, _) = makeSUT()
+        let (sut, primaryLoader, _) = await makeSUT()
         
         expect(sut, toCompleteWith: .success(primaryData), when: {
             primaryLoader.complete(with: primaryData)
         })
     }
     
-    func test_loadImageData_deliversFallbackDataOnFallbackLoaderSuccess() {
+    func test_loadImageData_deliversFallbackDataOnFallbackLoaderSuccess() async {
         let fallbackData = anyData()
-        let (sut, primaryLoader, fallbackLoader) = makeSUT()
+        let (sut, primaryLoader, fallbackLoader) = await makeSUT()
         
         expect(sut, toCompleteWith: .success(fallbackData), when: {
             primaryLoader.complete(with: anyNSError())
@@ -113,8 +83,8 @@ final class FeedImageDataLoaderWithFallbackCompositeTests: XCTestCase {
         })
     }
     
-    func test_loadImageData_deliversErrorOnBothPrimaryAndFallbackLoaderFailure() {
-        let (sut, primaryLoader, fallbackLoader) = makeSUT()
+    func test_loadImageData_deliversErrorOnBothPrimaryAndFallbackLoaderFailure() async {
+        let (sut, primaryLoader, fallbackLoader) = await makeSUT()
         
         expect(sut, toCompleteWith: .failure(anyNSError()), when: {
             primaryLoader.complete(with: anyNSError())
@@ -124,10 +94,12 @@ final class FeedImageDataLoaderWithFallbackCompositeTests: XCTestCase {
     
     // MARK: - Helpers
     
-    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedImageDataLoader, primary: LoaderSpy, fallback: LoaderSpy) {
+    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) async -> (sut: FeedImageDataLoader, primary: LoaderSpy, fallback: LoaderSpy) {
         let primaryLoader = LoaderSpy()
         let fallbackLoader = LoaderSpy()
-        let sut = FeedImageDataLoaderWithFallbackComposite(primary: primaryLoader, fallback: fallbackLoader)
+        let sut = await MainActor.run {
+            FeedImageDataLoaderWithFallbackComposite(primary: primaryLoader, fallback: fallbackLoader)
+        }
         trackForMemoryLeaks(primaryLoader, file: file, line: line)
         trackForMemoryLeaks(fallbackLoader, file: file, line: line)
         trackForMemoryLeaks(sut, file: file, line: line)
@@ -137,7 +109,7 @@ final class FeedImageDataLoaderWithFallbackCompositeTests: XCTestCase {
     private func expect(_ sut: FeedImageDataLoader, toCompleteWith expectedResult: FeedImageDataLoader.Result, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
         let exp = expectation(description: "Wait for load completion")
         
-        _ = sut.loadImageData(from: anyURL(), completion: { receivedResult in
+        _ = sut.loadImageData(from: anyURL()) { receivedResult in
             switch (receivedResult, expectedResult) {
             case let (.success(receivedFeed), .success(expectedFeed)):
                 XCTAssertEqual(receivedFeed, expectedFeed, file: file, line: line)
@@ -150,7 +122,7 @@ final class FeedImageDataLoaderWithFallbackCompositeTests: XCTestCase {
             }
             
             exp.fulfill()
-        })
+        }
         
         action()
         
@@ -169,6 +141,7 @@ final class FeedImageDataLoaderWithFallbackCompositeTests: XCTestCase {
     
     private func anyNSError() -> NSError { NSError(domain: "any error", code: 0) }
     
+    @MainActor
     private class LoaderSpy: FeedImageDataLoader {
         private var messages = [(url: URL, completion: (FeedImageDataLoader.Result) -> Void)]()
         
