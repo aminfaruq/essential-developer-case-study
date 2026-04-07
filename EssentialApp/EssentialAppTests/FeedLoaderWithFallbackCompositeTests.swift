@@ -44,18 +44,6 @@ final class FeedLoaderWithFallbackCompositeTests: XCTestCase {
         return sut
     }
     
-    
-    private func uniqueFeed() -> [FeedImage] {
-        [
-            FeedImage(
-                id: UUID(),
-                description: "any",
-                location: "any",
-                url: anyURL()
-            )
-        ]
-    }
-    
     private func expect(_ sut: FeedLoader, toCompleteWith expectedResult: FeedLoader.Result, file: StaticString = #filePath, line: UInt = #line) {
         let exp = expectation(description: "Wait for load completion")
         
