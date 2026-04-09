@@ -47,6 +47,9 @@ public final class FeedImageCell: UITableViewCell {
     }
     
     private func setupUI() {
+        self.accessibilityIdentifier = "feed-image-cell"
+        feedImageView.accessibilityIdentifier = "feed-image-view"
+        
         // MARK: - Setup location container -
         locationContainer.axis = .horizontal
         locationContainer.alignment = .top
