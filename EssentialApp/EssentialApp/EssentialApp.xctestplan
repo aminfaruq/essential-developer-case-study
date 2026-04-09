@@ -25,15 +25,6 @@
         "identifier" : "8313F7BC2F7BFCE500936891",
         "name" : "EssentialAppTests"
       }
-    },
-    {
-      "enabled" : false,
-      "parallelizable" : true,
-      "target" : {
-        "containerPath" : "container:EssentialApp.xcodeproj",
-        "identifier" : "8313F7C62F7BFCE500936891",
-        "name" : "EssentialAppUITests"
-      }
     }
   ],
   "version" : 1

@@ -41,14 +41,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         window?.rootViewController = FeedUIComposer.feedComposedWith(
             feedLoader:
-                FeedLoaderWithFallbackComposite(
-                    primary: remoteFeedLoader,
-                    fallback: localFeedLoader
-                ),
-            imageLoader: FeedImageDataLoaderWithFallbackComposite(
-                primary: localImageLoader,
-                fallback: remoteImageLoader
-            )
+                localFeedLoader,
+            imageLoader: localImageLoader
         )
     }
 
