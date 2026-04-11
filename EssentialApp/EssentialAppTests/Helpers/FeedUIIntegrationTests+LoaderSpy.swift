@@ -6,12 +6,14 @@
 //
 
 import Foundation
+import EssentialApp
 import EssentialFeed
 import EssentialFeediOS
 
+@MainActor
 extension FeedUIIntegrationTests {
     
-    class LoaderSpy: FeedLoader, FeedImageDataLoader {
+    class LoaderSpy: FeedLoader, FeedImageDataLoader, @unchecked Sendable {
         
         private var feedRequests = [(FeedLoader.Result) -> Void]()
         

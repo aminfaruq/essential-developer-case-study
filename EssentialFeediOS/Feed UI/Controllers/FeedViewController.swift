@@ -11,11 +11,11 @@ import EssentialFeed
 public final class FeedViewController: UITableViewController, UITableViewDataSourcePrefetching, FeedErrorView {
     private var refreshController: FeedRefreshViewController?
     public let errorView = ErrorView()
-    var tableModel = [FeedImageCellController]() {
+    private var tableModel = [FeedImageCellController]() {
         didSet { tableView.reloadData() }
     }
     
-    convenience init(refreshController: FeedRefreshViewController) {
+    public convenience init(refreshController: FeedRefreshViewController) {
         self.init()
         self.refreshController = refreshController
     }
@@ -35,6 +35,10 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
         registerTableView()
         refreshControl = refreshController?.view
         refreshController?.refresh()
+    }
+    
+    public func display(_ cellControllers: [FeedImageCellController]) {
+        tableModel = cellControllers
     }
     
     public func display(_ viewModel: FeedErrorViewModel) {
