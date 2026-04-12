@@ -5,6 +5,8 @@
 //  Created by Amin faruq on 09/04/26.
 //
 
+// MARK: - Not used again since we have FeedAcceptanceTests more light and faster -
+/*
 import XCTest
 
 final class EssentialAppUIAcceptanceTests: XCTestCase {
@@ -46,3 +48,4 @@ final class EssentialAppUIAcceptanceTests: XCTestCase {
         XCTAssertEqual(feedCells.count, 0)
     }
 }
+ */

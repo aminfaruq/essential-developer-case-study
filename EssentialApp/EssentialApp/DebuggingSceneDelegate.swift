@@ -5,6 +5,8 @@
 //  Created by Amin faruq on 09/04/26.
 //
 
+// MARK: - Not used again since we have FeedAcceptanceTests which is no need this configuration -
+/*
 #if DEBUG
 import UIKit
 import EssentialFeed
@@ -86,3 +88,4 @@ private class DebuggingHTTPClient: HTTPClient {
     }
 }
 #endif
+*/
