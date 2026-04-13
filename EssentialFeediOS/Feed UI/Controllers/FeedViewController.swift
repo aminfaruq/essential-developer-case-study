@@ -21,12 +21,10 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
     }
     
     private func registerTableView() {
-        errorView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 50)
-        
         tableView.tableHeaderView = errorView
+        tableView.sizeTableHeaderToFit()
         tableView.register(FeedImageCell.self, forCellReuseIdentifier: "FeedImageCell")
         tableView.prefetchDataSource = self
-        tableView.tableHeaderView?.contentMode = .scaleToFill
     }
     
     override public func viewDidLoad() {
@@ -37,12 +35,18 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
         refreshController?.refresh()
     }
     
+    public override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        tableView.sizeTableHeaderToFit()
+    }
+    
     public func display(_ cellControllers: [FeedImageCellController]) {
         tableModel = cellControllers
     }
     
     public func display(_ viewModel: FeedErrorViewModel) {
         errorView.message = viewModel.message
+        tableView.sizeTableHeaderToFit()
     }
     
     public override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
