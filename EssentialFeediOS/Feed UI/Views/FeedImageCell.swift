@@ -89,7 +89,7 @@ public final class FeedImageCell: UITableViewCell {
         // MARK: - Setup constraints using SnapKit -
         locationContainer.snp.makeConstraints { make in
             make.top.equalTo(contentView.snp.topMargin).offset(6)
-            make.leading.equalTo(contentView.snp.leadingMargin)
+            make.leading.equalTo(contentView.snp.leadingMargin).offset(4)
             make.trailing.lessThanOrEqualTo(contentView.snp.trailingMargin)
         }
         
@@ -98,6 +98,7 @@ public final class FeedImageCell: UITableViewCell {
             make.leading.equalTo(locationContainer.snp.leading)
             make.trailing.equalTo(locationContainer.snp.trailing)
             make.height.equalTo(feedImageContainer.snp.width) // Maintain a square aspect ratio
+            make.width.equalToSuperview().inset(12)
         }
         
         feedImageView.snp.makeConstraints { make in

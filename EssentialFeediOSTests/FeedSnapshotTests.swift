@@ -35,6 +35,14 @@ final class FeedSnapshotTests: XCTestCase {
         record(snapshot: sut.snapshot(), named: "FEED_WITH_ERROR_MESSAGE")
     }
     
+    func test_feedWithFailedImageLoading() {
+        let sut = makeSUT()
+        
+        sut.display(feedWithFailedImageLoading())
+        
+        record(snapshot: sut.snapshot(), named: "FEED_WITH_FAILED_IMAGE_LOADING")
+    }
+    
     // MARK: - Helpers
     
     private func makeSUT() -> FeedViewController {
@@ -48,8 +56,10 @@ final class FeedSnapshotTests: XCTestCase {
         return controller
     }
     
+    private func emptyFeed() -> [FeedImageCellController] { [] }
+    
     private func feedWithContent() -> [ImageStub] {
-        return [
+        [
             ImageStub(
                 description: "The East Side Gallery is an open-air gallery in Berlin. It consists of a series of murals painted directly on a 1,316 m long remnant of the Berlin Wall, located near the centre of Berlin, on Mühlenstraße in Friedrichshain-Kreuzberg. The gallery has official status as a Denkmal, or heritage-protected landmark.",
                 location: "East Side Gallery\nMemorial in Berlin, Germany",
@@ -63,7 +73,19 @@ final class FeedSnapshotTests: XCTestCase {
         ]
     }
     
-    private func emptyFeed() -> [FeedImageCellController] { [] }
+    private func feedWithFailedImageLoading() -> [ImageStub] {
+        [
+            ImageStub(
+                description: nil,
+                location: "Cannon Street, London",
+                image: nil),
+            
+            ImageStub(
+                description: nil,
+                location: "Brighton Seafront",
+                image: nil)
+        ]
+    }
     
     private func record(snapshot: UIImage, named name: String, file: StaticString = #filePath, line: UInt = #line) {
         guard let snapshotData = snapshot.pngData() else {
