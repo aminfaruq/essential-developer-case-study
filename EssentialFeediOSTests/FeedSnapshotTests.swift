@@ -16,7 +16,8 @@ final class FeedSnapshotTests: XCTestCase {
         
         sut.display(emptyFeed())
         
-        assert(snapshot: sut.snapshot(), named: "EMPTY_FEED")
+        assert(snapshot: sut.snapshot(for: .iPhone17(style: .light)), named: "EMPTY_FEED_light")
+        assert(snapshot: sut.snapshot(for: .iPhone17(style: .dark)), named: "EMPTY_FEED_dark")
     }
     
     func test_feedWithContent() {
@@ -24,7 +25,8 @@ final class FeedSnapshotTests: XCTestCase {
         
         sut.display(feedWithContent())
         
-        assert(snapshot: sut.snapshot(), named: "FEED_WITH_CONTENT")
+        assert(snapshot: sut.snapshot(for: .iPhone17(style: .light)), named: "FEED_WITH_CONTENT_light")
+        assert(snapshot: sut.snapshot(for: .iPhone17(style: .dark)), named: "FEED_WITH_CONTENT_dark")
     }
     
     func test_feedWithErrorMessage() {
@@ -32,7 +34,8 @@ final class FeedSnapshotTests: XCTestCase {
         
         sut.display(.error(message: "This is a\nmulti-line\nerror message"))
         
-        assert(snapshot: sut.snapshot(), named: "FEED_WITH_ERROR_MESSAGE")
+        assert(snapshot: sut.snapshot(for: .iPhone17(style: .light)), named: "FEED_WITH_ERROR_MESSAGE_light")
+        assert(snapshot: sut.snapshot(for: .iPhone17(style: .dark)), named: "FEED_WITH_ERROR_MESSAGE_dark")
     }
     
     func test_feedWithFailedImageLoading() {
@@ -40,7 +43,8 @@ final class FeedSnapshotTests: XCTestCase {
         
         sut.display(feedWithFailedImageLoading())
         
-        assert(snapshot: sut.snapshot(), named: "FEED_WITH_FAILED_IMAGE_LOADING")
+        assert(snapshot: sut.snapshot(for: .iPhone17(style: .light)), named: "FEED_WITH_FAILED_IMAGE_LOADING_light")
+        assert(snapshot: sut.snapshot(for: .iPhone17(style: .dark)), named: "FEED_WITH_FAILED_IMAGE_LOADING_dark")
     }
     
     // MARK: - Helpers
@@ -50,9 +54,10 @@ final class FeedSnapshotTests: XCTestCase {
         controller.loadViewIfNeeded()
         let width: CGFloat = 375
         let height: CGFloat = 812
-        
         controller.view.frame = CGRect(x: 0, y: 0, width: width, height: height)
         controller.view.layoutIfNeeded()
+        controller.tableView.showsVerticalScrollIndicator = false
+        controller.tableView.showsHorizontalScrollIndicator = false
         return controller
     }
     
@@ -176,10 +181,107 @@ private class ImageStub: FeedImageCellControllerDelegate {
 }
 
 extension UIViewController {
+        func snapshot(for configuration: SnapshotConfiguration) -> UIImage {
+            SnapshotWindow(configuration: configuration, root: self).snapshot()
+        }
+    
     func snapshot() -> UIImage {
         let renderer = UIGraphicsImageRenderer(bounds: view.bounds)
         return renderer.image { action in
             view.layer.render(in: action.cgContext)
+        }
+    }
+}
+
+struct SnapshotConfiguration {
+    let size: CGSize
+    let safeAreaInsets: UIEdgeInsets
+    let layoutMargins: UIEdgeInsets
+    let traitCollection: UITraitCollection
+    
+    static func iPhone8(style: UIUserInterfaceStyle) -> SnapshotConfiguration {
+        return SnapshotConfiguration(
+            size: CGSize(width: 375, height: 667),
+            safeAreaInsets: UIEdgeInsets(top: 20, left: 0, bottom: 0, right: 0),
+            layoutMargins: UIEdgeInsets(top: 20, left: 16, bottom: 0, right: 16),
+            traitCollection: UITraitCollection(mutations: { traits in
+                // Catatan: iPhone 8 mendukung 3D Touch (.available),
+                // sedangkan iPhone SE 3 menggunakan Haptic Touch (.unavailable).
+                // Di sini tetap menggunakan .available mengikuti kodemu sebelumnya.
+                traits.forceTouchCapability = .available
+                traits.layoutDirection = .leftToRight
+                traits.preferredContentSizeCategory = .medium
+                traits.userInterfaceIdiom = .phone
+                traits.horizontalSizeClass = .compact
+                traits.verticalSizeClass = .regular
+                traits.displayScale = 2
+                traits.displayGamut = .P3
+                traits.userInterfaceStyle = style
+            })
+        )
+    }
+    
+    static func iPhone17(style: UIUserInterfaceStyle) -> SnapshotConfiguration {
+        return SnapshotConfiguration(
+            size: CGSize(width: 393, height: 852),
+            safeAreaInsets: UIEdgeInsets(top: 59, left: 0, bottom: 34, right: 0),
+            layoutMargins: UIEdgeInsets(top: 59, left: 16, bottom: 34, right: 16),
+            traitCollection: UITraitCollection(mutations: { traits in
+                traits.forceTouchCapability = .unavailable
+                traits.layoutDirection = .leftToRight
+                traits.preferredContentSizeCategory = .medium
+                traits.userInterfaceIdiom = .phone
+                traits.horizontalSizeClass = .compact
+                traits.verticalSizeClass = .regular
+                traits.displayScale = 3
+                traits.displayGamut = .P3
+                traits.userInterfaceStyle = style
+            })
+        )
+    }
+}
+
+private final class SnapshotWindow: UIWindow {
+    private var configuration: SnapshotConfiguration = .iPhone17(style: .light)
+    
+    convenience init(configuration: SnapshotConfiguration, root: UIViewController) {
+        self.init(frame: CGRect(origin: .zero, size: configuration.size))
+        self.configuration = configuration
+        self.layoutMargins = configuration.layoutMargins
+        self.rootViewController = root
+        self.isHidden = false
+        root.view.layoutMargins = configuration.layoutMargins
+    }
+    
+    override var safeAreaInsets: UIEdgeInsets {
+        configuration.safeAreaInsets
+    }
+    
+    /*override var traitCollection: UITraitCollection {
+     UITraitCollection(traitsFrom: [super.traitCollection, configuration.traitCollection])
+     }*/
+    
+    override var traitCollection: UITraitCollection {
+        super.traitCollection.modifyingTraits { traits in
+            let configTraits = configuration.traitCollection
+            
+            // Timpa nilai bawaan (super) dengan nilai dari konfigurasi snapshot
+            traits.forceTouchCapability = configTraits.forceTouchCapability
+            traits.layoutDirection = configTraits.layoutDirection
+            traits.preferredContentSizeCategory = configTraits.preferredContentSizeCategory
+            traits.userInterfaceIdiom = configTraits.userInterfaceIdiom
+            traits.horizontalSizeClass = configTraits.horizontalSizeClass
+            traits.verticalSizeClass = configTraits.verticalSizeClass
+            traits.displayScale = configTraits.displayScale
+            traits.displayGamut = configTraits.displayGamut
+            traits.userInterfaceStyle = configTraits.userInterfaceStyle
+        }
+    }
+    
+    func snapshot() -> UIImage {
+        let renderer = UIGraphicsImageRenderer(bounds: bounds, format: .init(for: traitCollection))
+        return renderer.image { action in
+            layer.render(in: action.cgContext)
         }
     }
 }
