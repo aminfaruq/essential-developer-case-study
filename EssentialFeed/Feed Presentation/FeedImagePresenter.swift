@@ -26,7 +26,7 @@ public final class FeedImagePresenter<View: FeedImageView, Image> where View.Ima
         view.display(
             FeedImageViewModel(
                 description: model.description,
-                location: model.description,
+                location: model.location,
                 image: nil,
                 isLoading: true,
                 shouldRetry: false)
@@ -40,7 +40,7 @@ public final class FeedImagePresenter<View: FeedImageView, Image> where View.Ima
         view.display(
             FeedImageViewModel(
                 description: model.description,
-                location: model.description,
+                location: model.location,
                 image: image,
                 isLoading: false,
                 shouldRetry: image == nil)
