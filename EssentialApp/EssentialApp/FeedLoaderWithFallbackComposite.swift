@@ -5,7 +5,16 @@
 //  Created by Amin faruq on 02/04/26.
 //
 
+import Combine
 import EssentialFeed
+
+//MARK: - Combine way
+extension Publisher {
+    func fallback(to fallbackPublisher: @escaping () -> AnyPublisher<Output, Failure>) -> AnyPublisher<Output, Failure> {
+        self.catch { _ in fallbackPublisher() }.eraseToAnyPublisher()
+    }
+}
+//MARK: -
 
 public class FeedLoaderWithFallbackComposite: FeedLoader {
     private let primary: FeedLoader

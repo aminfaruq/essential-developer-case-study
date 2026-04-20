@@ -1,4 +1,5 @@
 
+#warning("Unnecessary because use combine way")
 import EssentialFeed
 
 class FeedLoaderStub: FeedLoader {
