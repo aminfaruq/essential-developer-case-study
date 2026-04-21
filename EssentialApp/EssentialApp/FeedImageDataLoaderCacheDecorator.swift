@@ -17,6 +17,7 @@ extension Publisher where Output == Data {
     }
 }
 
+/*
 public class FeedImageDataLoaderCacheDecorator: FeedImageDataLoader {
     private let decoratee: FeedImageDataLoader
     private let cache: FeedImageDataCache
@@ -35,6 +36,7 @@ public class FeedImageDataLoaderCacheDecorator: FeedImageDataLoader {
         }
     }
 }
+*/
 
 private extension FeedImageDataCache {
     func saveIgnoringResult(_ data: Data, for url: URL) {

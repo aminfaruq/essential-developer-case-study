@@ -5,6 +5,7 @@
 //  Created by Amin faruq on 02/04/26.
 //
 #warning("Unnecessary because use combine way")
+/*
 import XCTest
 import EssentialApp
 import EssentialFeed
@@ -106,3 +107,4 @@ final class FeedImageDataLoaderWithFallbackCompositeTests: XCTestCase, FeedImage
         return (sut, primaryLoader, fallbackLoader)
     }
 }
+*/

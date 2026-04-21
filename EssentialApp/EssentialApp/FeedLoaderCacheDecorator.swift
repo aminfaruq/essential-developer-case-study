@@ -24,6 +24,8 @@ extension Publisher where Output == [FeedImage] {
     }
 }
 
+#warning("Unnecessary because use combine way")
+/*
 public final class FeedLoaderCacheDecorator: FeedLoader {
     private let decoratee: FeedLoader
     private let cache: FeedCache
@@ -42,6 +44,7 @@ public final class FeedLoaderCacheDecorator: FeedLoader {
         }
     }
 }
+*/
 
 private extension FeedCache {
     func saveIgnoringResult(_ feed: [FeedImage]) {

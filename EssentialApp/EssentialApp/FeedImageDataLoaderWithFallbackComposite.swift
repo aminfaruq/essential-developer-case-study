@@ -4,7 +4,9 @@
 //
 //  Created by Amin faruq on 06/04/26.
 //
+#warning("Unnecessary because use combine way")
 
+/*
 import Foundation
 import EssentialFeed
 
@@ -39,3 +41,4 @@ public class FeedImageDataLoaderWithFallbackComposite: FeedImageDataLoader {
         return task
     }
 }
+*/

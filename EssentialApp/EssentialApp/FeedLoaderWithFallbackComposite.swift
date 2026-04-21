@@ -14,8 +14,9 @@ extension Publisher {
         self.catch { _ in fallbackPublisher() }.eraseToAnyPublisher()
     }
 }
-//MARK: -
 
+#warning("Unnecessary because use combine way")
+/*
 public class FeedLoaderWithFallbackComposite: FeedLoader {
     private let primary: FeedLoader
     private let fallback: FeedLoader
@@ -37,3 +38,4 @@ public class FeedLoaderWithFallbackComposite: FeedLoader {
         }
     }
 }
+*/

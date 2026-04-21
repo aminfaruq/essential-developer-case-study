@@ -6,6 +6,7 @@
 //
 #warning("Unnecessary because use combine way")
 
+/*
 import XCTest
 import EssentialApp
 import EssentialFeed
@@ -69,3 +70,4 @@ final class FeedLoaderCacheDecoratorTests: XCTestCase, FeedLoaderTestCase {
         }
     }
 }
+*/
