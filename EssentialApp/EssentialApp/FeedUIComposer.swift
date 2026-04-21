@@ -32,8 +32,12 @@ public final class FeedUIComposer {
      }*/
     
     //MARK: - Side effect use combine
-    public static func feedComposedWith(feedLoader: @escaping () -> FeedLoader.Publisher, imageLoader: @escaping (URL) -> FeedImageDataLoader.Publisher) -> FeedViewController {
-        let presentationAdapter = FeedLoaderPresentationAdapter(feedLoader: { feedLoader().dispatchOnMainQueue() })
+    public static func feedComposedWith(
+        feedLoader: @escaping () -> FeedLoader.Publisher,
+        imageLoader: @escaping (URL) -> FeedImageDataLoader.Publisher
+    ) -> FeedViewController {
+        
+        let presentationAdapter = FeedLoaderPresentationAdapter(feedLoader: { feedLoader() })
         let refreshController = FeedRefreshViewController(delegate: presentationAdapter)
         
         let feedController = makeViewController(
@@ -43,7 +47,7 @@ public final class FeedUIComposer {
         )
         
         presentationAdapter.presenter = FeedPresenter(
-            feedView: FeedViewAdapter(controller: feedController, imageLoader: { imageLoader($0).dispatchOnMainQueue() }),
+            feedView: FeedViewAdapter(controller: feedController, imageLoader: imageLoader),
             loadingView: WeakRefVirtualProxy(refreshController),
             errorView: WeakRefVirtualProxy(feedController)
         )
