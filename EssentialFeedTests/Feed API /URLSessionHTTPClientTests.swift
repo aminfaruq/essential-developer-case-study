@@ -9,27 +9,20 @@ import XCTest
 import EssentialFeed
 
 class URLSessionHTTPClientTests: XCTestCase {
-    // Kumpulan unit test untuk `URLSessionHTTPClient`.
-    // Tujuan: Memastikan client melakukan request GET yang benar dan memetakan kombinasi data/response/error
-    // menjadi hasil yang sesuai (success/failure).
-    // Strategi: Menggunakan `URLProtocolStub` untuk mengintersep request jaringan dan menyuntikkan
-    // data/response/error stub, serta mengamati request yang dikirim.
+    // A collection of unit tests for `URLSessionHTTPClient`.
+    // Goal: Ensure the client performs a correct GET request and maps data/response/error
+    // combinations into the appropriate result (success/failure).
+    // Strategy: Use `URLProtocolStub` to intercept network requests and inject
+    // stubbed data/response/error, as well as observe the outgoing requests.
     
-    // Mulai mengintersep seluruh request jaringan melalui `URLProtocolStub`.
-    override func setUp() {
-        super.setUp()
-        
-        URLProtocolStub.startInterceptingRequests()
-    }
-    
-    // Hentikan intersepsi dan bersihkan stub/observer agar test lain tidak terpengaruh.
+    // Stop intercepting and clean up the stub/observer so other tests aren't affected.
     override func tearDown() {
         super.tearDown()
         
-        URLProtocolStub.stopInterceptingRequests()
+        URLProtocolStub.removeStub()
     }
     
-    // Memverifikasi bahwa `get(from:)` membuat request GET ke URL yang diberikan.
+    // Verifies that `get(from:)` performs a GET request to the given URL.
     func test_getFromUrl_performsGETRequestWithURL() {
         let url = anyURL()
         let exp = expectation(description: "Wait for request")
@@ -45,47 +38,58 @@ class URLSessionHTTPClientTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
     }
     
-    // Jika terjadi error pada level request (mis. koneksi gagal), client harus mengembalikan error yang sama.
+    func test_cancelGetFromURLTask_cancelsURLRequest() {
+        let exp = expectation(description: "Wait for request")
+        URLProtocolStub.observeRequests { _ in
+            exp.fulfill()
+        }
+        let receivedError = resultErrorFor(taskHandler: { $0.cancel() }) as NSError?
+        wait(for: [exp], timeout: 1.0)
+        
+        XCTAssertEqual(receivedError?.code, URLError.cancelled.rawValue)
+    }
+    
+    // If a request-level error occurs (e.g., connection fails), the client should return the same error.
     func test_getFromURL_failsOnRequestError() {
         let requestError = anyNSError()
         
-        let receivedError = resultErrorFor(data: nil, response: nil, error: requestError)
+        let receivedError = resultErrorFor((data: nil, response: nil, error: requestError))
         
         XCTAssertEqual(receivedError?.domain, requestError.domain)
         XCTAssertEqual(receivedError?.code, requestError.code)
     }
     
-    // Kombinasi tidak valid (data/response/error) harus menghasilkan kegagalan.
-    // Tujuannya memastikan hanya kombinasi data + HTTPURLResponse (tanpa error) yang dianggap sukses.
+    // Invalid combinations of (data/response/error) should result in failure.
+    // This ensures only the combination of data + HTTPURLResponse (with no error) is treated as success.
     func test_getFromURL_failsOnAllInvalidRepresentationCases() {
-        XCTAssertNotNil(resultErrorFor(data: nil, response: nil, error: nil))
-        XCTAssertNotNil(resultErrorFor(data: nil, response: nonHTTPURLResponse(), error: nil))
-        XCTAssertNotNil(resultErrorFor(data: anyData(), response: nil, error: nil))
-        XCTAssertNotNil(resultErrorFor(data: anyData(), response: nil, error: anyNSError()))
-        XCTAssertNotNil(resultErrorFor(data: nil, response: nonHTTPURLResponse(), error: anyNSError()))
-        XCTAssertNotNil(resultErrorFor(data: nil, response: anyHTTPURLResponse(), error: anyNSError()))
-        XCTAssertNotNil(resultErrorFor(data: anyData(), response: nonHTTPURLResponse(), error: anyNSError()))
-        XCTAssertNotNil(resultErrorFor(data: anyData(), response: anyHTTPURLResponse(), error: anyNSError()))
-        XCTAssertNotNil(resultErrorFor(data: anyData(), response: nonHTTPURLResponse(), error: nil))
+        XCTAssertNotNil(resultErrorFor((data: nil, response: nil, error: nil)))
+        XCTAssertNotNil(resultErrorFor((data: nil, response: nonHTTPURLResponse(), error: nil)))
+        XCTAssertNotNil(resultErrorFor((data: anyData(), response: nil, error: nil)))
+        XCTAssertNotNil(resultErrorFor((data: anyData(), response: nil, error: anyNSError())))
+        XCTAssertNotNil(resultErrorFor((data: nil, response: nonHTTPURLResponse(), error: anyNSError())))
+        XCTAssertNotNil(resultErrorFor((data: nil, response: anyHTTPURLResponse(), error: anyNSError())))
+        XCTAssertNotNil(resultErrorFor((data: anyData(), response: nonHTTPURLResponse(), error: anyNSError())))
+        XCTAssertNotNil(resultErrorFor((data: anyData(), response: anyHTTPURLResponse(), error: anyNSError())))
+        XCTAssertNotNil(resultErrorFor((data: anyData(), response: nonHTTPURLResponse(), error: nil)))
     }
     
-    // Jika menerima `HTTPURLResponse` valid dengan data, harus sukses dan mengembalikan pasangan (data, response).
+    // When receiving a valid `HTTPURLResponse` with data, it should succeed and return the (data, response) pair.
     func test_getFromURL_succeedsOnHTTPURLResponseWithData() {
         let data = anyData()
         let response = anyHTTPURLResponse()
         
-        let receivedValues = resultValuesFor(data: data, response: response, error: nil)
+        let receivedValues = resultValuesFor((data: data, response: response, error: nil))
         
         XCTAssertEqual(receivedValues?.data, data)
         XCTAssertEqual(receivedValues?.response.url, response.url)
         XCTAssertEqual(receivedValues?.response.statusCode, response.statusCode)
     }
     
-    // Jika menerima `HTTPURLResponse` valid dengan data `nil`, harus sukses dengan `Data()` kosong sebagai gantinya.
+    // When receiving a valid `HTTPURLResponse` with nil data, it should succeed with empty `Data()` instead.
     func test_getFromURL_succeedsWithEmptyDataOnHTTPURLResponseWithNilData() {
         let response = anyHTTPURLResponse()
         
-        let receivedValues = resultValuesFor(data: nil, response: response, error: nil)
+        let receivedValues = resultValuesFor((data: nil, response: response, error: nil))
         
         let emptyData = Data()
         XCTAssertEqual(receivedValues?.data, emptyData)
@@ -94,18 +98,22 @@ class URLSessionHTTPClientTests: XCTestCase {
     }
     
     
-    // MARK: Helpers
+    // MARK: - Helpers
     
-    /// Membuat instance `URLSessionHTTPClient` sebagai SUT dan mengaktifkan pelacakan memory leaks.
+    /// Creates a `URLSessionHTTPClient` instance as the SUT and enables memory leak tracking.
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> HTTPClient {
-        let sut = URLSessionHTTPClient()
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [URLProtocolStub.self]
+        let session = URLSession(configuration: configuration)
+        
+        let sut = URLSessionHTTPClient(session: session)
         trackForMemoryLeaks(sut, file: file, line: line)
         return sut
     }
     
-    /// Helper untuk mengekstrak nilai sukses (data, response); gagal jika hasil bukan success.
-    private func resultValuesFor(data: Data?, response: URLResponse?, error: Error?, file: StaticString = #filePath, line: UInt = #line) -> (data: Data, response: HTTPURLResponse)? {
-        let result = resultFor(data: data, response: response, error: error, file: file, line: line)
+    /// Helper to extract success values (data, response); fails if the result isn't success.
+    private func resultValuesFor(_ values: (data: Data?, response: URLResponse?, error: Error?), file: StaticString = #filePath, line: UInt = #line) -> (data: Data, response: HTTPURLResponse)? {
+        let result = resultFor(values, file: file, line: line)
         
         switch result {
         case .success((let data, let response)):
@@ -116,11 +124,10 @@ class URLSessionHTTPClientTests: XCTestCase {
         }
     }
     
-    /// Helper untuk mengekstrak error dari hasil; gagal jika hasil bukan failure.
-    private func resultErrorFor(data: Data?, response: URLResponse?, error: Error?, file: StaticString = #filePath, line: UInt = #line) -> NSError? {
+    /// Helper to extract the error from the result; fails if the result isn't failure.
+    private func resultErrorFor(_ values: (data: Data?, response: URLResponse?, error: Error?)? = nil, taskHandler: (HTTPClientTask) -> Void = { _ in }, file: StaticString = #filePath, line: UInt = #line) -> NSError? {
         
-        let result = resultFor(data: data, response: response, error: error, file: file, line: line)
-        
+        let result = resultFor(values, taskHandler: taskHandler, file: file, line: line)
         
         switch result {
         case let .failure(error):
@@ -132,110 +139,29 @@ class URLSessionHTTPClientTests: XCTestCase {
         }
     }
     
-    /// Helper sentral: menyetel stub (data/response/error), membuat SUT, melakukan request, dan menunggu hasil.
-    private func resultFor(data: Data?, response: URLResponse?, error: Error?, file: StaticString = #filePath, line: UInt = #line) -> HTTPClient.Result {
-        URLProtocolStub.stub(data: data, response: response, error: error)
+    /// Central helper: set the stub (data/response/error), create the SUT, perform the request, and wait for the result.
+    private func resultFor(_ values: (data: Data?, response: URLResponse?, error: Error?)?,  taskHandler: (HTTPClientTask) -> Void = { _ in }, file: StaticString = #filePath, line: UInt = #line) -> HTTPClient.Result {
+        values.map({
+            URLProtocolStub.stub(data: $0, response: $1, error: $2)
+        })
         let sut = makeSUT(file: file, line: line)
         let exp = expectation(description: "Wait for completion")
         
         var receivedResult: HTTPClient.Result!
-        sut.get(from: anyURL(), completion: { result in
+        taskHandler(sut.get(from: anyURL(), completion: { result in
             receivedResult = result
             
             exp.fulfill()
-        })
+        }))
         
         wait(for: [exp], timeout: 1.0)
         return receivedResult
     }
     
-    /// Data sembarang untuk keperluan test.
-    private func anyData() -> Data { Data(_: "any data".utf8) }
+    /// Non-HTTP `URLResponse` (no status code) for invalid cases.
+    private func nonHTTPURLResponse() -> URLResponse { URLResponse(url: anyURL(), mimeType: nil, expectedContentLength: 0, textEncodingName: nil) }
     
-    /// `URLResponse` non-HTTP (tidak memiliki status code) untuk kasus tidak valid.
-    private func nonHTTPURLResponse() ->  URLResponse { URLResponse(url: anyURL(), mimeType: nil, expectedContentLength: 0, textEncodingName: nil) }
-    
-    /// `HTTPURLResponse` valid (status code default 200) untuk kasus valid.
+    /// Valid `HTTPURLResponse` (default status code 200) for valid cases.
     private func anyHTTPURLResponse() -> HTTPURLResponse { HTTPURLResponse(url: anyURL(), mimeType: nil, expectedContentLength: 0, textEncodingName: nil) }
-    
-    
-    /// Stub `URLProtocol` untuk mengintersep request jaringan.
-    /// Memungkinkan kita mengamati request dan/atau menyuntikkan data/response/error tanpa jaringan sungguhan.
-    private class URLProtocolStub: URLProtocol {
-        
-        // Menyimpan nilai stub yang akan dikembalikan saat request diintersep.
-        private static var stub: Stub?
-        // Callback opsional untuk mengamati setiap request yang masuk (mis. verifikasi URL/method).
-        private static var requestObserver: ((URLRequest) -> Void)?
-        
-        // Paket nilai stub yang mungkin: data, response, dan/atau error.
-        private struct Stub {
-            let data: Data?
-            let response: URLResponse?
-            let error: Error?
-        }
-        
-        /// Menyetel nilai stub global yang akan digunakan saat request diintersep.
-        static func stub(data: Data?, response: URLResponse?, error: Error?) {
-            stub = Stub(data: data, response: response, error: error)
-        }
-        
-        /// Mendaftarkan observer untuk menerima setiap `URLRequest` yang datang.
-        static func observeRequests(observer: @escaping (URLRequest) -> Void) {
-            requestObserver = observer
-        }
-        
-        /// Mulai mengintersep semua request dengan mendaftarkan kelas `URLProtocolStub`.
-        static func startInterceptingRequests() {
-            URLProtocol.registerClass(URLProtocolStub.self)
-        }
-        
-        /// Berhenti mengintersep dan bersihkan state stub/observer.
-        static func stopInterceptingRequests() {
-            URLProtocol.unregisterClass(URLProtocolStub.self)
-            
-            stub = nil
-            requestObserver = nil
-        }
-        
-        /// Mengintersep semua request (kembalikan `true` agar URLLoadingSystem menggunakan stub ini).
-        override class func canInit(with request: URLRequest) -> Bool {
-            return true
-        }
-        
-        /// Kembalikan request apa adanya (tidak perlu normalisasi).
-        override class func canonicalRequest(for request: URLRequest) -> URLRequest {
-            return request
-        }
-        
-        override func startLoading() {
-            // Jika ada observer, beritahu observer dengan request dan akhiri loading.
-            if let requestObserver = URLProtocolStub.requestObserver {
-                client?.urlProtocolDidFinishLoading(self)
-                return requestObserver(request)
-            }
-            
-            // Jika ada data stub, kirim ke client.
-            if let data = URLProtocolStub.stub?.data {
-                client?.urlProtocol(self, didLoad: data)
-            }
-            
-            // Jika ada response stub, kirim ke client.
-            if let response = URLProtocolStub.stub?.response {
-                client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
-            }
-            
-            // Jika ada error stub, laporkan kegagalan ke client.
-            if let error = URLProtocolStub.stub?.error {
-                client?.urlProtocol(self, didFailWithError: error)
-            }
-            
-            // Sinyalkan bahwa loading telah selesai.
-            client?.urlProtocolDidFinishLoading(self)
-        }
-        
-        /// Tidak ada pekerjaan khusus saat berhenti; diperlukan untuk memenuhi kontrak `URLProtocol`.
-        override func stopLoading() {}
-    }
 }
 

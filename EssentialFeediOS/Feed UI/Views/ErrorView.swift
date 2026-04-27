@@ -18,7 +18,7 @@ public final class ErrorView: UIView {
     private let messageLabel: UILabel = {
         let label = UILabel()
         label.textAlignment = .center
-        label.textColor = .red
+        label.textColor = .white
         return label
     }()
     
@@ -38,10 +38,12 @@ public final class ErrorView: UIView {
     }
     
     private func setupView() {
+        backgroundColor = .systemRed
         addSubview(messageLabel)
         setupConstraints()
         alpha = 0
         messageLabel.text = nil
+        messageLabel.numberOfLines = 0
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(hideMessageAnimated))
         addGestureRecognizer(tap)
@@ -49,7 +51,7 @@ public final class ErrorView: UIView {
     
     private func setupConstraints() {
         messageLabel.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            make.edges.equalToSuperview().inset(12)
         }
     }
     

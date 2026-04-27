@@ -11,7 +11,11 @@ internal import SnapKit
 public final class FeedImageCell: UITableViewCell {
     public let locationContainer = UIStackView()
     public let locationLabel = UILabel()
-    public let pinImageView = UIImageView(image: UIImage(named: "pin"))
+    public let pinImageView: UIImageView = {
+        let bundle = Bundle(for: FeedImageCell.self)
+        let image = UIImage(named: "pin", in: bundle, compatibleWith: nil)
+        return UIImageView(image: image)
+    }()
     public let descriptionLabel = UILabel()
     public let feedImageContainer = UIView()
     public let feedImageView = UIImageView()
@@ -43,6 +47,11 @@ public final class FeedImageCell: UITableViewCell {
     }
     
     private func setupUI() {
+        #if DEBUG
+        self.accessibilityIdentifier = "feed-image-cell"
+        feedImageView.accessibilityIdentifier = "feed-image-view"
+        #endif
+        
         // MARK: - Setup location container -
         locationContainer.axis = .horizontal
         locationContainer.alignment = .top
@@ -68,8 +77,9 @@ public final class FeedImageCell: UITableViewCell {
         feedImageContainer.addSubview(feedImageView)
         feedImageContainer.addSubview(feedImageRetryButton)
         
-        feedImageView.contentMode = .scaleAspectFit
-        
+        feedImageView.contentMode = .scaleToFill
+        feedImageView.layer.cornerRadius = 8.0
+        feedImageView.clipsToBounds = true
         // MARK: - Setup description label -
         descriptionLabel.numberOfLines = 6
         descriptionLabel.font = UIFont.systemFont(ofSize: 16)
@@ -79,14 +89,15 @@ public final class FeedImageCell: UITableViewCell {
         // MARK: - Setup constraints using SnapKit -
         locationContainer.snp.makeConstraints { make in
             make.top.equalTo(contentView.snp.topMargin).offset(6)
-            make.leading.equalTo(contentView.snp.leadingMargin)
+            make.leading.equalTo(contentView.snp.leadingMargin).offset(4)
             make.trailing.lessThanOrEqualTo(contentView.snp.trailingMargin)
         }
         
         feedImageContainer.snp.makeConstraints { make in
             make.top.equalTo(locationContainer.snp.bottom).offset(10)
             make.leading.equalTo(locationContainer.snp.leading)
-            make.trailing.equalTo(locationContainer.snp.trailing)
+            //make.trailing.equalTo(locationContainer.snp.trailing)
+            make.trailing.equalToSuperview().inset(22)
             make.height.equalTo(feedImageContainer.snp.width) // Maintain a square aspect ratio
         }
         

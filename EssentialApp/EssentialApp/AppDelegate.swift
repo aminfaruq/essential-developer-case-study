@@ -1,0 +1,26 @@
+//
+//  AppDelegate.swift
+//  EssentialApp
+//
+//  Created by Amin faruq on 31/03/26.
+//
+
+import UIKit
+
+@main
+class AppDelegate: UIResponder, UIApplicationDelegate {
+
+    // MARK: - Not used again since we have FeedAcceptanceTests which is no need this configuration -
+    /*
+     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+        let configuration = UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
+        
+        #if DEBUG
+        configuration.delegateClass = DebuggingSceneDelegate.self
+        #endif
+        
+        return configuration
+    }
+     */
+}
+

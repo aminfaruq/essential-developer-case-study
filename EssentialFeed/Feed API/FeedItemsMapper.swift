@@ -38,10 +38,6 @@ final class FeedItemsMapper {
         let items: [RemoteFeedItem]
     }
     
-    
-    /// Only HTTP 200 responses are considered valid for mapping.
-    static var OK_200: Int { return 200 }
-    
     /// Maps `(data, response)` into `RemoteFeedLoader.Result`.
     /// - Requires: `response.statusCode == 200` and a JSON payload matching `Root`.
     /// - Returns: `.success([FeedImage])` on valid input; otherwise `.failure(.invalidData)`.
@@ -64,8 +60,8 @@ final class FeedItemsMapper {
     ///     "items": [ { "description": "missing id & image" } ]
     ///   }
     static func map(_ data: Data, from response: HTTPURLResponse) throws -> [RemoteFeedItem] {
-        guard response.statusCode == OK_200,
-              let root = try? JSONDecoder().decode(Root.self, from: data) else {
+        guard response.isOK, let root = try? JSONDecoder().decode(Root.self, from: data)
+        else {
             throw RemoteFeedLoader.Error.invalidData
         }
         

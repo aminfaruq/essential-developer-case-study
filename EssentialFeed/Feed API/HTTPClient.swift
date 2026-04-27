@@ -16,6 +16,10 @@ public enum HTTPClientResult {
 }
 */
 
+public protocol HTTPClientTask {
+    func cancel()
+}
+
 /// An abstraction over an HTTP client capable of performing GET requests.
 ///
 /// Responsibilities:
@@ -36,5 +40,6 @@ public protocol HTTPClient {
     
     /// The completion handler can be invoked in any thread.
     /// Clients are responsible to dispatch to appropriate threads, if needed.
-    func get(from url: URL, completion: @escaping (Result) -> Void)
+    @discardableResult
+    func get(from url: URL, completion: @escaping (Result) -> Void) -> HTTPClientTask
 }
