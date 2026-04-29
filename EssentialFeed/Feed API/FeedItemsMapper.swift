@@ -36,6 +36,17 @@ final class FeedItemsMapper {
     /// Top-level payload that wraps an array of `Item` DTOs.
     private struct Root: Decodable {
         let items: [RemoteFeedItem]
+        
+        struct RemoteFeedItem: Decodable {
+            let id: UUID
+            let description: String?
+            let location: String?
+            let image: URL
+        }
+
+        var images: [FeedImage] {
+            items.map { FeedImage(id: $0.id, description: $0.description, location: $0.location, url: $0.image) }
+        }
     }
     
     /// Maps `(data, response)` into `RemoteFeedLoader.Result`.
@@ -59,13 +70,13 @@ final class FeedItemsMapper {
     ///   {
     ///     "items": [ { "description": "missing id & image" } ]
     ///   }
-    static func map(_ data: Data, from response: HTTPURLResponse) throws -> [RemoteFeedItem] {
+    static func map(_ data: Data, from response: HTTPURLResponse) throws -> [FeedImage] {
         guard response.isOK, let root = try? JSONDecoder().decode(Root.self, from: data)
         else {
             throw RemoteFeedLoader.Error.invalidData
         }
         
-        return root.items
+        return root.images
     }
 }
 
