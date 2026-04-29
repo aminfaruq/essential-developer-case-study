@@ -1,22 +1,15 @@
 //
-//  LoadFeedFromRemoteUseCaseTests.swift
-//  EssentialFeedTests
+//  RemoteLoaderTests.swift
+//  EssentialFeed
 //
-//  Created by Amin faruq on 23/12/25.
+//  Created by Amin faruq on 29/04/26.
 //
 
 import XCTest
 import EssentialFeed
 
-final class LoadFeedFromRemoteUseCaseTests: XCTestCase {
-    // Unit tests for `RemoteFeedLoader`.
-    // Goal: Ensure the interaction with `HTTPClient` and the delivered results (success/failure)
-    // match different HTTP response and data conditions.
-    // Strategy: Use `HTTPClientSpy` as a test double to record requests and
-    // simulate completions (success/failure) without real networking.
-    // MARK: - Tests
+final class RemoteLoaderTests: XCTestCase {
     
-    // Initializing `RemoteFeedLoader` must not request data from the URL.
     func test_init_doesNotRequestDataFromURL() {
         let url = URL(string: "https://a-given-url.com")!
         let (_, client) = makeSUT(url: url)
@@ -110,7 +103,7 @@ final class LoadFeedFromRemoteUseCaseTests: XCTestCase {
             imageURL: URL(string: "http://another-url.com")!)
         
         let items = [item1.model, item2.model]
-                
+        
         expect(sut, toCompleteWith: .success(items), when: {
             
             let json = makeItemsJSON([item1.json, item2.json])
@@ -123,9 +116,9 @@ final class LoadFeedFromRemoteUseCaseTests: XCTestCase {
     func test_load_doesNotDeliverResultAfterSUTInstanceHasBeenDeallocated() {
         let url = URL(string: "http://any-url.com")!
         let client = HTTPClientSpy()
-        var sut: RemoteFeedLoader? = RemoteFeedLoader(url: url, client: client)
+        var sut: RemoteLoader? = RemoteLoader(url: url, client: client)
         
-        var capturedResults = [RemoteFeedLoader.Result]()
+        var capturedResults = [RemoteLoader.Result]()
         sut?.load(completion: {  capturedResults.append($0) })
         
         sut = nil
@@ -136,15 +129,15 @@ final class LoadFeedFromRemoteUseCaseTests: XCTestCase {
     
     // MARK: Helpers
     
-    /// Creates a SUT (`RemoteFeedLoader`) and its `HTTPClientSpy`.
+    /// Creates a SUT (`RemoteLoader`) and its `HTTPClientSpy`.
     /// - Parameters:
     ///   - url: The URL to be used by the SUT.
     ///   - file: File info for memory leak tracking.
     ///   - line: Line info for memory leak tracking.
     /// - Returns: A tuple of the SUT and the spy client with leak tracking applied.
-    private func makeSUT(url: URL = URL(string: "https://a-given-url.com")!, file: StaticString = #file, line: UInt = #line) -> (sut: RemoteFeedLoader, client: HTTPClientSpy) {
+    private func makeSUT(url: URL = URL(string: "https://a-given-url.com")!, file: StaticString = #file, line: UInt = #line) -> (sut: RemoteLoader, client: HTTPClientSpy) {
         let client = HTTPClientSpy()
-        let sut = RemoteFeedLoader(url: url, client: client)
+        let sut = RemoteLoader(url: url, client: client)
         
         trackForMemoryLeaks(sut, file: file, line: line)
         trackForMemoryLeaks(client, file: file, line: line)
@@ -152,7 +145,7 @@ final class LoadFeedFromRemoteUseCaseTests: XCTestCase {
     }
     
     /// Helper to express failure expectations more succinctly.
-    private func failure(_ error: RemoteFeedLoader.Error) -> RemoteFeedLoader.Result {
+    private func failure(_ error: RemoteLoader.Error) -> RemoteLoader.Result {
         return .failure(error)
     }
     
@@ -186,7 +179,7 @@ final class LoadFeedFromRemoteUseCaseTests: XCTestCase {
     ///   - when: The action that triggers request completion on `HTTPClientSpy`.
     ///   - file: Auto-filled for accurate failure reporting.
     ///   - line: Auto-filled for accurate failure reporting.
-    private func expect(_ sut: RemoteFeedLoader, toCompleteWith expectedResult: RemoteFeedLoader.Result, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
+    private func expect(_ sut: RemoteLoader, toCompleteWith expectedResult: RemoteLoader.Result, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
         
         let exp = expectation(description: "Wait for load completion")
         
@@ -195,9 +188,9 @@ final class LoadFeedFromRemoteUseCaseTests: XCTestCase {
             case let (.success(receivedItems), .success(expectedItems)):
                 
                 XCTAssertEqual(receivedItems, expectedItems, file: file, line: line)
-            case let (.failure(receivedError as RemoteFeedLoader.Error), .failure(expectedError as RemoteFeedLoader.Error)):
+            case let (.failure(receivedError as RemoteLoader.Error), .failure(expectedError as RemoteLoader.Error)):
                 
-                XCTAssertEqual(receivedError as RemoteFeedLoader.Error, expectedError , file: file, line: line)
+                XCTAssertEqual(receivedError as RemoteLoader.Error, expectedError , file: file, line: line)
             default:
                 XCTFail("Expected result \(expectedResult) got \(receivedResult) instead", file: file, line: line)
             }
@@ -209,4 +202,5 @@ final class LoadFeedFromRemoteUseCaseTests: XCTestCase {
         
         wait(for: [exp], timeout: 1.0)
     }
+    
 }
