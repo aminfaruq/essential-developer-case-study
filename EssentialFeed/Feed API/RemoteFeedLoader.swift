@@ -7,14 +7,16 @@
 
 import Foundation
 
-public typealias RemoteFeedLoader = RemoteLoader<[FeedImage]>
+//------------ Reusable Implementation -------------
+//public typealias RemoteFeedLoader = RemoteLoader<[FeedImage]>
+//
+//public extension RemoteFeedLoader {
+//    convenience init(url: URL, client: HTTPClient) {
+//        self.init(url: url, client: client, mapper: FeedItemsMapper.map)
+//    }
+//}
 
-public extension RemoteFeedLoader {
-    convenience init(url: URL, client: HTTPClient) {
-        self.init(url: url, client: client, mapper: FeedItemsMapper.map)
-    }
-}
-
+// ------------ OLD LEGACY -----------------
 //public final class RemoteFeedLoader: FeedLoader {
 //    private let url: URL
 //    private let client: HTTPClient
