@@ -51,9 +51,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
     
     func configureWindow() {
-        let localImageLoader = LocalFeedImageDataLoader(store: store)
-        let remoteImageLoader = RemoteFeedImageDataLoader(client: httpClient)
         /*
+         let localImageLoader = LocalFeedImageDataLoader(store: store)
+         let remoteImageLoader = RemoteFeedImageDataLoader(client: httpClient)
          let remoteURL = URL(string: "https://ile-api.essentialdeveloper.com/essential-feed/v1/feed")!
          
          let remoteFeedLoader = RemoteFeedLoader(url: remoteURL, client: httpClient)
@@ -194,3 +194,5 @@ extension DispatchQueue {
     }
     
 }
+
+extension RemoteLoader: @retroactive FeedLoader where Resource == [FeedImage] {}
