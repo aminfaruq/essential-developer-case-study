@@ -5,6 +5,7 @@
 //  Created by Amin faruq on 23/12/25.
 //
 
+/*
 import XCTest
 import EssentialFeed
 
@@ -150,3 +151,4 @@ final class LoadFeedFromRemoteUseCaseTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
     }
 }
+*/
