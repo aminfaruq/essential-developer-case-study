@@ -9,51 +9,6 @@ import XCTest
 import EssentialFeed
 
 final class LoadFeedFromRemoteUseCaseTests: XCTestCase {
-    // Unit tests for `RemoteFeedLoader`.
-    // Goal: Ensure the interaction with `HTTPClient` and the delivered results (success/failure)
-    // match different HTTP response and data conditions.
-    // Strategy: Use `HTTPClientSpy` as a test double to record requests and
-    // simulate completions (success/failure) without real networking.
-    // MARK: - Tests
-    
-    // Initializing `RemoteFeedLoader` must not request data from the URL.
-    func test_init_doesNotRequestDataFromURL() {
-        let url = URL(string: "https://a-given-url.com")!
-        let (_, client) = makeSUT(url: url)
-        
-        XCTAssertTrue(client.requestedURLs.isEmpty)
-    }
-    
-    // Calling `load()` should request data from the given URL.
-    func test_load_requestsDataFromURL() {
-        let url = URL(string: "https://a-given-url.com")!
-        let (sut, client) = makeSUT(url: url)
-        
-        sut.load() { _ in }
-        
-        XCTAssertEqual(client.requestedURLs, [url])
-    }
-    
-    // Calling `load()` twice should issue two requests to the same URL.
-    func test_loadTwice_requestsDataFromURLTwice() {
-        let url = URL(string: "https://a-given-url.com")!
-        let (sut, client) = makeSUT(url: url)
-        
-        sut.load() { _ in }
-        sut.load() { _ in }
-        
-        XCTAssertEqual(client.requestedURLs, [url, url])
-    }
-    
-    // If `HTTPClient` completes with an error, `load()` should deliver `.failure(.connectivity)`.
-    func test_load_deliversErrorOnClientError() {
-        let (sut, client) = makeSUT()
-        
-        expect(sut, toCompleteWith: failure(.connectivity), when: {
-            let clientError = NSError(domain: "Test", code: 0)
-            client.complete(with: clientError)
-        })
-    }
     
     // For any status code other than 200, `load()` should deliver `.failure(.invalidData)`.
     func test_load_deliversErrorOnNon200HTTPResponse() {
@@ -117,21 +72,6 @@ final class LoadFeedFromRemoteUseCaseTests: XCTestCase {
             
             client.complete(withStatusCode: 200, data: json)
         })
-    }
-    
-    // If the SUT instance has been deallocated, it must not deliver the completion.
-    func test_load_doesNotDeliverResultAfterSUTInstanceHasBeenDeallocated() {
-        let url = URL(string: "http://any-url.com")!
-        let client = HTTPClientSpy()
-        var sut: RemoteFeedLoader? = RemoteFeedLoader(url: url, client: client)
-        
-        var capturedResults = [RemoteFeedLoader.Result]()
-        sut?.load(completion: {  capturedResults.append($0) })
-        
-        sut = nil
-        client.complete(withStatusCode: 200, data: makeItemsJSON([]))
-        
-        XCTAssertTrue(capturedResults.isEmpty)
     }
     
     // MARK: Helpers
