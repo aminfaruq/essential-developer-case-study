@@ -91,8 +91,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
     
     private func makeRemoteFeedLoaderWithLocalFallback(url: URL) -> FeedLoader.Publisher {
-        return remoteFeedLoader
-            .loadPublisher()
+        //        return remoteFeedLoader
+        //            .loadPublisher()
+        //            .caching(to: localFeedLoader)
+        //            .fallback(to: localFeedLoader.loadPublisher)
+        //
+        return httpClient
+            .getPublisher(url: remoteURL)
+            .tryMap(FeedItemsMapper.map)
             .caching(to: localFeedLoader)
             .fallback(to: localFeedLoader.loadPublisher)
     }
@@ -110,6 +116,24 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             })
     }
 }
+//MARK: HTTPCLIENT HELPERS
+public extension HTTPClient {
+    typealias Publisher = AnyPublisher<(Data, HTTPURLResponse), Error>
+    
+    func getPublisher(url: URL) -> Publisher {
+        var task: HTTPClientTask?
+        
+        return Deferred {
+            Future { completion in
+                task = self.get(from: url, completion: completion)
+            }
+        }
+        .handleEvents(receiveCancel: { task?.cancel() })
+        .eraseToAnyPublisher()
+    }
+}
+
+//-----------------
 
 public extension FeedImageDataLoader {
     
