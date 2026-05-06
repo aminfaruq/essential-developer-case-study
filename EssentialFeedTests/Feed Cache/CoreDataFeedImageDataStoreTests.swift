@@ -91,7 +91,7 @@ final class CoreDataFeedImageDataStoreTests: XCTestCase {
         LocalFeedImage(id: UUID(), description: "any", location: "any", url: url)
     }
     
-    private func expect(_ sut: CoreDataFeedStore, toCompleteRetrievalWith expectedResult: FeedImageDataStore.RetrievalResult, for url: URL,  file: StaticString = #file, line: UInt = #line) {
+    private func expect(_ sut: CoreDataFeedStore, toCompleteRetrievalWith expectedResult: FeedImageDataStore.RetrievalResult, for url: URL,  file: StaticString = #filePath, line: UInt = #line) {
         
         let exp = expectation(description: "Wait for load completion")
         sut.retrieve(dataForURL: url, completion: { receivedResult in
