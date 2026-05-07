@@ -43,7 +43,9 @@ public final class FeedUIComposer {
         imageLoader: @escaping (URL) -> FeedImageDataLoader.Publisher
     ) -> FeedViewController {
         
-        let presentationAdapter = FeedLoaderPresentationAdapter(feedLoader: { feedLoader() })
+        //let presentationAdapter = LoadResourcePresentationAdapter<Resource, View: ResourceView>(feedLoader: { feedLoader() })
+        
+        let presentationAdapter = LoadResourcePresentationAdapter<[FeedImage], FeedViewAdapter>(loader: feedLoader)
         let refreshController = FeedRefreshViewController(delegate: presentationAdapter)
         
         let feedController = makeViewController(
@@ -52,11 +54,20 @@ public final class FeedUIComposer {
             title: FeedPresenter.title
         )
         
-        presentationAdapter.presenter = FeedPresenter(
-            feedView: FeedViewAdapter(controller: feedController, imageLoader: imageLoader),
+        //        presentationAdapter.presenter = FeedPresenter(
+        //            feedView: FeedViewAdapter(controller: feedController, imageLoader: imageLoader),
+        //            loadingView: WeakRefVirtualProxy(refreshController),
+        //            errorView: WeakRefVirtualProxy(feedController)
+        //        )
+        
+        presentationAdapter.presenter = LoadResourcePresenter(
+            resourceView: FeedViewAdapter(
+                controller: feedController,
+                imageLoader: imageLoader
+            ),
             loadingView: WeakRefVirtualProxy(refreshController),
-            errorView: WeakRefVirtualProxy(feedController)
-        )
+            errorView: WeakRefVirtualProxy(feedController),
+            mapper: FeedPresenter.map)
         
         return feedController
     }

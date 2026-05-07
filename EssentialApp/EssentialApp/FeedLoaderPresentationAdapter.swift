@@ -1,5 +1,5 @@
 //
-//  FeedLoaderPresentationAdapter.swift
+//  LoadResourcePresentationAdapter<Resource, View: ResourceView>.swift
 //  EssentialFeed
 //
 //  Created by Amin faruq on 10/03/26.
@@ -8,7 +8,7 @@ import Combine
 import EssentialFeed
 import EssentialFeediOS
 
-public final class FeedLoaderPresentationAdapter: FeedRefreshViewControllerDelegate {
+public final class LoadResourcePresentationAdapter<Resource, View: ResourceView> {
     /*
      private let feedLoader: FeedLoader
      var presenter: FeedPresenter?
@@ -32,20 +32,20 @@ public final class FeedLoaderPresentationAdapter: FeedRefreshViewControllerDeleg
     
     //MARK: - Combine Way
     //private let feedLoader: () -> FeedLoader.Publisher
-    private let feedLoader: () -> AnyPublisher<[FeedImage], Error>
+    private let loader: () -> AnyPublisher<Resource, Error>
     private var cancellable: Cancellable?
     //var presenter: FeedPresenter?
-    var presenter: LoadResourcePresenter<[FeedImage], FeedViewAdapter>?
+    var presenter: LoadResourcePresenter<Resource, View>?
     
     //init(feedLoader: @escaping () -> FeedLoader.Publisher) {
-    init(feedLoader: @escaping () -> AnyPublisher<[FeedImage], Error>) {
-        self.feedLoader = feedLoader
+    init(loader: @escaping () -> AnyPublisher<Resource, Error>) {
+        self.loader = loader
     }
     
-    public func didRequestFeedRefresh() {
+    public func loadResource() {
         presenter?.didStartLoading()
         
-        cancellable = feedLoader()
+        cancellable = loader()
             .dispatchOnMainQueue()
             .sink(
                 receiveCompletion: { [weak self] completion in
@@ -58,9 +58,15 @@ public final class FeedLoaderPresentationAdapter: FeedRefreshViewControllerDeleg
                     }
                     
                 },
-                receiveValue: { [weak self] feed in
-                    self?.presenter?.didFinishLoading(with: feed)
+                receiveValue: { [weak self] resource in
+                    self?.presenter?.didFinishLoading(with: resource)
                 }
             )
+    }
+}
+
+extension LoadResourcePresentationAdapter: FeedRefreshViewControllerDelegate {
+    func didRequestFeedRefresh() {
+        loadResource()
     }
 }

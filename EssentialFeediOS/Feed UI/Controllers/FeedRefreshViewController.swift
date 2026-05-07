@@ -9,7 +9,7 @@ import UIKit
 import EssentialFeed
 
 public protocol FeedRefreshViewControllerDelegate {
-    func didRequestFeedRefresh()
+    func loadResource()
 }
 
 public final class FeedRefreshViewController: NSObject, ResourceLoadingView {
@@ -23,7 +23,7 @@ public final class FeedRefreshViewController: NSObject, ResourceLoadingView {
     }
     
     @objc func refresh() {
-        delegate.didRequestFeedRefresh()
+        delegate.loadResource()
     }
     
     public func display(_ viewModel: ResourceLoadingViewModel) {
