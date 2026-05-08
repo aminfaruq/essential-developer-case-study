@@ -70,12 +70,7 @@ final class FeedViewAdapter: ResourceView {
                     resourceView: WeakRefVirtualProxy(view),
                     loadingView: WeakRefVirtualProxy(view),
                     errorView: WeakRefVirtualProxy(view),
-                    mapper: { data in
-                        guard let image = UIImage(data: data) else {
-                            throw InvalidImageData()
-                        }
-                        return image
-                    })
+                    mapper: UIImage.tryMake)
                 
                 return view
             })
@@ -83,4 +78,20 @@ final class FeedViewAdapter: ResourceView {
     }
 }
 
-private struct InvalidImageData: Error {}
+
+
+extension UIImage {
+    struct InvalidImageData: Error {}
+    
+    /// Decodes image data off the main actor.
+    /// Marked `nonisolated(unsafe)` to avoid main-actor inference on UIKit types in Swift 6,
+    /// since `UIImage(data:)` decoding is safe to perform off the main thread. UI updates
+    /// still occur on the main actor via the presenters.
+    @preconcurrency nonisolated(unsafe) static func tryMake(data: Data) throws -> UIImage {
+        guard let image = UIImage(data: data) else {
+            throw InvalidImageData()
+        }
+        
+        return image
+    }
+}
