@@ -43,7 +43,7 @@ public final class FeedUIComposer {
     public static func feedComposedWith(
         feedLoader: @escaping () -> AnyPublisher<[FeedImage], Error>,
         imageLoader: @escaping (URL) -> FeedImageDataLoader.Publisher
-    ) -> FeedViewController {
+    ) -> ListViewController {
         
         //let presentationAdapter = LoadResourcePresentationAdapter<Resource, View: ResourceView>(feedLoader: { feedLoader() })
         
@@ -74,8 +74,8 @@ public final class FeedUIComposer {
         return feedController
     }
     
-    private static func makeViewController(delegate: FeedRefreshViewControllerDelegate, refreshDelegate: FeedRefreshViewController, title: String) -> FeedViewController{
-        let feedController = FeedViewController(refreshController: refreshDelegate)
+    private static func makeViewController(delegate: FeedRefreshViewControllerDelegate, refreshDelegate: FeedRefreshViewController, title: String) -> ListViewController{
+        let feedController = ListViewController(refreshController: refreshDelegate)
         feedController.title = FeedPresenter.title
         return feedController
     }
