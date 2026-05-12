@@ -16,6 +16,11 @@ public protocol CellController {
 }
 
 public extension CellController {
+    func preload() {}
+    func cancelLoad() {}
+}
+
+public extension CellController {
     func registerIfNeeded(in tableView: UITableView) {}
 }
 

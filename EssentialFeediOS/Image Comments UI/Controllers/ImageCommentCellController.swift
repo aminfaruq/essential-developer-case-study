@@ -24,14 +24,6 @@ public class ImageCommentCellController: CellController {
         return cell
     }
     
-    public func preload() {
-        
-    }
-    
-    public func cancelLoad() {
-        
-    }
-    
     public func registerIfNeeded(in tableView: UITableView) {
         tableView.register(ImageCommentCell.self, forCellReuseIdentifier: "ImageCommentCell")
     }
