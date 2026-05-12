@@ -26,7 +26,7 @@ public final class FeedRefreshViewController: NSObject, ResourceLoadingView {
     
     @objc func refresh() {
         onRefresh?()
-        //        delegate.loadResource()
+        //delegate.loadResource()
     }
     
     public func display(_ viewModel: ResourceLoadingViewModel) {
