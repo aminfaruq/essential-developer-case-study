@@ -49,16 +49,21 @@ public final class FeedImageCellController: /*FeedImageView,*/CellController , R
         delegate.didCancelImageRequest()
     }
     
-//    public func display(_ viewModel: FeedImageViewModel<UIImage>) {
-//        
-//        cell?.feedImageRetryButton.isHidden = !viewModel.shouldRetry
-//        
-//        if let image = viewModel.image {
-//            display(image)
-//        } else {
-//            cell?.feedImageView.image = nil
-//        }
-//    }
+    public func registerIfNeeded(in tableView: UITableView) {
+        tableView.register(FeedImageCell.self, forCellReuseIdentifier: "FeedImageCell")
+
+    }
+    
+    //    public func display(_ viewModel: FeedImageViewModel<UIImage>) {
+    //
+    //        cell?.feedImageRetryButton.isHidden = !viewModel.shouldRetry
+    //
+    //        if let image = viewModel.image {
+    //            display(image)
+    //        } else {
+    //            cell?.feedImageView.image = nil
+    //        }
+    //    }
     
     public func display(_ viewModel: UIImage) {
         cell?.feedImageView.setImageAnimated(viewModel)

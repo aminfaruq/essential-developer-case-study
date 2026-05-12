@@ -12,6 +12,11 @@ public protocol CellController {
     func view(in tableView: UITableView) -> UITableViewCell
     func preload()
     func cancelLoad()
+    func registerIfNeeded(in tableView: UITableView)
+}
+
+public extension CellController {
+    func registerIfNeeded(in tableView: UITableView) {}
 }
 
 public final class ListViewController: UITableViewController, UITableViewDataSourcePrefetching, ResourceErrorView {
@@ -32,7 +37,6 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
     private func registerTableView() {
         tableView.tableHeaderView = errorView
         tableView.sizeTableHeaderToFit()
-        tableView.register(FeedImageCell.self, forCellReuseIdentifier: "FeedImageCell")
         tableView.prefetchDataSource = self
     }
     
@@ -52,6 +56,7 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
     public func display(_ cellControllers: [CellController]) {
         loadingControllers = [:]
         tableModel = cellControllers
+        cellControllers.forEach { $0.registerIfNeeded(in: tableView) }
     }
     
     public func display(_ viewModel: ResourceErrorViewModel) {
