@@ -48,10 +48,10 @@ public final class FeedUIComposer {
         //let presentationAdapter = LoadResourcePresentationAdapter<Resource, View: ResourceView>(feedLoader: { feedLoader() })
         
         let presentationAdapter = FeedPresentationAdapter(loader: feedLoader)
-        let refreshController = FeedRefreshViewController(delegate: presentationAdapter)
-        
+        let refreshController = FeedRefreshViewController(/*delegate: presentationAdapter*/)
+        refreshController.onRefresh = presentationAdapter.loadResource
         let feedController = makeViewController(
-            delegate: presentationAdapter,
+//            delegate: presentationAdapter,
             refreshDelegate: refreshController,
             title: FeedPresenter.title
         )
@@ -74,7 +74,7 @@ public final class FeedUIComposer {
         return feedController
     }
     
-    private static func makeViewController(delegate: FeedRefreshViewControllerDelegate, refreshDelegate: FeedRefreshViewController, title: String) -> ListViewController{
+    private static func makeViewController(/*delegate: FeedRefreshViewControllerDelegate,*/ refreshDelegate: FeedRefreshViewController, title: String) -> ListViewController{
         let feedController = ListViewController(refreshController: refreshDelegate)
         feedController.title = FeedPresenter.title
         return feedController
