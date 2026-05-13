@@ -8,7 +8,7 @@
 import UIKit
 import EssentialFeed
 
-public class ImageCommentCellController: NSObject, CellController {
+public class ImageCommentCellController: NSObject, UITableViewDataSource, RegisterController {
     
     private let model: ImageCommentViewModel
     
@@ -28,8 +28,6 @@ public class ImageCommentCellController: NSObject, CellController {
         cell.messageLabel.text = model.message
         return cell
     }
-    
-    public func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {}
     
     public func registerIfNeeded(in tableView: UITableView) {
         tableView.register(ImageCommentCell.self, forCellReuseIdentifier: "ImageCommentCell")
