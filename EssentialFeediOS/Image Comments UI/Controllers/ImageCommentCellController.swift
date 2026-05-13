@@ -8,14 +8,19 @@
 import UIKit
 import EssentialFeed
 
-public class ImageCommentCellController: CellController {
+public class ImageCommentCellController: NSObject, CellController {
+    
     private let model: ImageCommentViewModel
     
     public init(model: ImageCommentViewModel) {
         self.model = model
     }
+
+    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        1
+    }
     
-    public func view(in tableView: UITableView) -> UITableViewCell {
+    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         tableView.separatorStyle = .none
         let cell = tableView.dequeueReusableCell(withIdentifier: "ImageCommentCell") as! ImageCommentCell
         cell.dateLabel.text = model.date
@@ -23,6 +28,8 @@ public class ImageCommentCellController: CellController {
         cell.messageLabel.text = model.message
         return cell
     }
+    
+    public func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {}
     
     public func registerIfNeeded(in tableView: UITableView) {
         tableView.register(ImageCommentCell.self, forCellReuseIdentifier: "ImageCommentCell")
