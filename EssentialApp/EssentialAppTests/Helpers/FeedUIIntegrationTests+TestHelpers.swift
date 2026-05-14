@@ -49,6 +49,10 @@ extension ListViewController {
         simulateFeedImageViewVisible(at: index)?.renderedImage
     }
     
+    func simulateErrorViewTap() {
+        errorView?.simulateTap()
+    }
+    
     var isShowingLoadingIndicator: Bool {
         return refreshControl?.isRefreshing == true
     }

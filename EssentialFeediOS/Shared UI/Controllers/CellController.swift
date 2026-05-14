@@ -6,6 +6,10 @@
 //
 import UIKit
 
+public protocol RegisterController{
+    func registerIfNeeded(in tableView: UITableView)
+}
+
 public struct CellController {
     let dataSource: UITableViewDataSource
     let delegate: UITableViewDelegate?

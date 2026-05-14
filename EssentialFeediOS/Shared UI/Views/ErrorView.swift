@@ -6,53 +6,40 @@
 //
 
 import UIKit
-internal import SnapKit
 
-public final class ErrorView: UIView {
-        
+public final class ErrorView: UIButton {
+    
     public var message: String? {
-        get { return isVisible ? messageLabel.text : nil }
+        get { return isVisible ? title(for: .normal) : nil }
         set { setMessageAnimated(newValue) }
     }
     
-    private let messageLabel: UILabel = {
-        let label = UILabel()
-        label.textAlignment = .center
-        label.textColor = .white
-        return label
-    }()
+    public var onHide: (() -> Void)?
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
-        setupView()
+        configure()
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-        setupView()
     }
     
-    public override func awakeFromNib() {
-        super.awakeFromNib()
-        setupView()
-    }
-    
-    private func setupView() {
-        backgroundColor = .systemRed
-        addSubview(messageLabel)
-        setupConstraints()
-        alpha = 0
-        messageLabel.text = nil
-        messageLabel.numberOfLines = 0
+    private func configure() {
+        backgroundColor = .errorBackgroundColor
         
-        let tap = UITapGestureRecognizer(target: self, action: #selector(hideMessageAnimated))
-        addGestureRecognizer(tap)
+        addTarget(self, action: #selector(hideMessageAnimated), for: .touchUpInside)
+        configureLabel()
+        hideMessage()
     }
     
-    private func setupConstraints() {
-        messageLabel.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(12)
-        }
+    private func configureLabel() {
+        titleLabel?.textColor = .white
+        titleLabel?.textAlignment = .center
+        titleLabel?.numberOfLines = 0
+        titleLabel?.font = .systemFont(ofSize: 17)
+        contentHorizontalAlignment = .center
+        contentVerticalAlignment = .center
     }
     
     private var isVisible: Bool {
@@ -68,7 +55,10 @@ public final class ErrorView: UIView {
     }
     
     private func showAnimated(_ message: String) {
-        messageLabel.text = message
+        setTitle(message, for: .normal)
+
+        contentEdgeInsets = .init(top: 8, left: 8, bottom: 8, right: 8)
+        
         
         UIView.animate(withDuration: 0.25) {
             self.alpha = 1
@@ -81,9 +71,22 @@ public final class ErrorView: UIView {
             animations: { self.alpha = 0 },
             completion: { [weak self] completed in
                 if completed {
-                    self?.messageLabel.text = nil
+                    self?.hideMessage()
                 }
             }
         )
+    }
+    
+    private func hideMessage() {
+        setTitle(nil, for: .normal)
+        alpha = 0
+        contentEdgeInsets = .init(top: -2.5, left: 0, bottom: -2.5, right: 0)
+        onHide?()
+    }
+}
+
+extension UIColor {
+    static var errorBackgroundColor: UIColor {
+        UIColor(red: 0.99951404330000004, green: 0.41759261489999999, blue: 0.4154433012, alpha: 1)
     }
 }

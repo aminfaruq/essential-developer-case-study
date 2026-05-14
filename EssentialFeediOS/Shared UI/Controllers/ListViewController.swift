@@ -7,16 +7,11 @@
 
 import UIKit
 import EssentialFeed
-
-//public typealias CellController = UITableViewDataSource & UITableViewDelegate & UITableViewDataSourcePrefetching & RegisterController
-
-public protocol RegisterController{
-    func registerIfNeeded(in tableView: UITableView)
-}
+internal import SnapKit
 
 public final class ListViewController: UITableViewController, UITableViewDataSourcePrefetching, ResourceErrorView {
     private var refreshController: FeedRefreshViewController?
-    public let errorView = ErrorView()
+    private(set) public var errorView = ErrorView()
     
     private var loadingControllers = [IndexPath: CellController]()
     
@@ -29,18 +24,31 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
         self.refreshController = refreshController
     }
     
-    private func registerTableView() {
-        tableView.tableHeaderView = errorView
-        tableView.sizeTableHeaderToFit()
-        tableView.prefetchDataSource = self
-    }
-    
     override public func viewDidLoad() {
         super.viewDidLoad()
+        tableView.prefetchDataSource = self
         
-        registerTableView()
         refreshControl = refreshController?.view
         refreshController?.refresh()
+        configureErrorView()
+    }
+    
+    private func configureErrorView() {
+        let container = UIView()
+        container.backgroundColor = .clear
+        container.addSubview(errorView)
+        
+        errorView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        
+        tableView.tableHeaderView = container
+        
+        errorView.onHide = { [weak self] in
+            self?.tableView.beginUpdates()
+            self?.tableView.sizeTableHeaderToFit()
+            self?.tableView.endUpdates()
+        }
     }
     
     public override func viewDidLayoutSubviews() {
@@ -56,7 +64,6 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
     
     public func display(_ viewModel: ResourceErrorViewModel) {
         errorView.message = viewModel.message
-        tableView.sizeTableHeaderToFit()
     }
     
     public override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -98,11 +105,5 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
         let controller = loadingControllers[indexPath]
         loadingControllers[indexPath] = nil
         return controller
-    }
-    
-    @objc private func hideErrorView() {
-        tableView.beginUpdates()
-        tableView.tableHeaderView = nil
-        tableView.endUpdates()
     }
 }
