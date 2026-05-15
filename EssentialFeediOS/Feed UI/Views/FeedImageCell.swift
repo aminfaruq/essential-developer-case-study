@@ -66,7 +66,9 @@ public final class FeedImageCell: UITableViewCell {
         }
         
         locationLabel.numberOfLines = 2
-        locationLabel.font = UIFont.systemFont(ofSize: 15)
+        locationLabel.font = .preferredFont(forTextStyle: .subheadline)
+        locationLabel.adjustsFontForContentSizeCategory = true
+
         locationLabel.textColor = UIColor(red: 0.61, green: 0.61, blue: 0.61, alpha: 1.0)
         
         // MARK: - Setup feed image container -
@@ -82,7 +84,9 @@ public final class FeedImageCell: UITableViewCell {
         feedImageView.clipsToBounds = true
         // MARK: - Setup description label -
         descriptionLabel.numberOfLines = 6
-        descriptionLabel.font = UIFont.systemFont(ofSize: 16)
+        descriptionLabel.font = .preferredFont(forTextStyle: .body)
+        descriptionLabel.adjustsFontForContentSizeCategory = true
+
         descriptionLabel.textColor = UIColor(red: 0.64, green: 0.64, blue: 0.64, alpha: 1.0)
         contentView.addSubview(descriptionLabel)
         

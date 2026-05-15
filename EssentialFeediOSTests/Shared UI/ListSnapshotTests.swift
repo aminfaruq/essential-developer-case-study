@@ -27,6 +27,7 @@ final class ListSnapshotTests: XCTestCase {
         
         assert(snapshot: sut.snapshot(for: .iPhone17(style: .light)), named: "FEED_WITH_ERROR_MESSAGE_light")
         assert(snapshot: sut.snapshot(for: .iPhone17(style: .dark)), named: "FEED_WITH_ERROR_MESSAGE_dark")
+        assert(snapshot: sut.snapshot(for: .iPhone17(style: .light, contentSize: .extraExtraExtraLarge)), named: "FEED_WITH_ERROR_MESSAGE_light_extraExtraExtraLarge")
     }
     
     private func makeSUT() -> ListViewController {

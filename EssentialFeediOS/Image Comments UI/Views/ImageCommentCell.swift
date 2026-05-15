@@ -17,21 +17,26 @@ public final class ImageCommentCell: UITableViewCell {
         return stack
     }()
     
-    public let messageLabel : UILabel = {
-        let label = UILabel()
-        label.numberOfLines = 0
-        return label
-    }()
-    
     public let usernameLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.boldSystemFont(ofSize: 20.0)
+        label.font = .preferredFont(forTextStyle: .headline)
+        label.adjustsFontForContentSizeCategory = true
         return label
     }()
     
     public let dateLabel:  UILabel = {
         let label = UILabel()
+        label.font = .preferredFont(forTextStyle: .subheadline)
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = .gray
+        return label
+    }()
+    
+    public let messageLabel : UILabel = {
+        let label = UILabel()
+        label.font = .preferredFont(forTextStyle: .body)
+        label.adjustsFontForContentSizeCategory = true
+        label.numberOfLines = 0
         return label
     }()
     
@@ -54,7 +59,7 @@ public final class ImageCommentCell: UITableViewCell {
             make.top.equalToSuperview()
             make.leading.equalToSuperview().offset(12)
             make.trailing.equalToSuperview().inset(12)
-            make.height.equalTo(22)
+//            make.height.equalTo(22)
         }
         contentView.addSubview(messageLabel)
         
