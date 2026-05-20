@@ -7,7 +7,6 @@
 
 import UIKit
 
-@MainActor
 public extension UIControl {
     /// Simulates sending a UIControl.Event to this control, invoking any registered targets/actions.
     /// Must be called on the main thread.

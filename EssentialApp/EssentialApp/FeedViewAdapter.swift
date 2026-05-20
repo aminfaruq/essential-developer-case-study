@@ -73,7 +73,7 @@ final class FeedViewAdapter: ResourceView {
                     mapper: UIImage.tryMake)
                 
                 //return view
-                return CellController(view)
+                return CellController(id: model, view)
             })
         )
     }
@@ -88,7 +88,7 @@ extension UIImage {
     /// Marked `nonisolated(unsafe)` to avoid main-actor inference on UIKit types in Swift 6,
     /// since `UIImage(data:)` decoding is safe to perform off the main thread. UI updates
     /// still occur on the main actor via the presenters.
-    @preconcurrency nonisolated(unsafe) static func tryMake(data: Data) throws -> UIImage {
+    static func tryMake(data: Data) throws -> UIImage {
         guard let image = UIImage(data: data) else {
             throw InvalidImageData()
         }
