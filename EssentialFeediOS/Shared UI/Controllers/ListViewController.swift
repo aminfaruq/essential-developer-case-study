@@ -7,7 +7,6 @@
 
 import UIKit
 import EssentialFeed
-internal import SnapKit
 
 public final class ListViewController: UITableViewController, UITableViewDataSourcePrefetching, ResourceErrorView {
     private var refreshController: FeedRefreshViewController?
@@ -27,27 +26,19 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
     
     override public func viewDidLoad() {
         super.viewDidLoad()
-        tableView.prefetchDataSource = self
-        dataSource.defaultRowAnimation = .fade
-        tableView.dataSource = dataSource
-        tableView.estimatedRowHeight = 580
+        configureTableView()
         
         refreshControl = refreshController?.view
         refreshController?.refresh()
-        configureErrorView()
     }
     
-    private func configureErrorView() {
-        let container = UIView()
-        container.backgroundColor = .clear
-        container.addSubview(errorView)
-        
-        errorView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
-        
-        tableView.tableHeaderView = container
-        
+    private func configureTableView() {
+        tableView.prefetchDataSource = self
+        tableView.dataSource = dataSource
+        tableView.estimatedRowHeight = 580
+        tableView.tableHeaderView = errorView.makeContainer()
+        dataSource.defaultRowAnimation = .fade
+
         errorView.onHide = { [weak self] in
             self?.tableView.beginUpdates()
             self?.tableView.sizeTableHeaderToFit()

@@ -59,7 +59,6 @@ public final class ImageCommentCell: UITableViewCell {
             make.top.equalToSuperview()
             make.leading.equalToSuperview().offset(12)
             make.trailing.equalToSuperview().inset(12)
-//            make.height.equalTo(22)
         }
         contentView.addSubview(messageLabel)
         

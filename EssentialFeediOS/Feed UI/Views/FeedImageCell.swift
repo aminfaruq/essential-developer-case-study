@@ -100,9 +100,8 @@ public final class FeedImageCell: UITableViewCell {
         feedImageContainer.snp.makeConstraints { make in
             make.top.equalTo(locationContainer.snp.bottom).offset(10)
             make.leading.equalTo(locationContainer.snp.leading)
-            //make.trailing.equalTo(locationContainer.snp.trailing)
             make.trailing.equalToSuperview().inset(22)
-            make.height.equalTo(feedImageContainer.snp.width) // Maintain a square aspect ratio
+            make.height.equalTo(feedImageContainer.snp.width) 
         }
         
         feedImageView.snp.makeConstraints { make in
