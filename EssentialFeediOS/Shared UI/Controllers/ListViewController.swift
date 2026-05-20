@@ -28,6 +28,7 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
     override public func viewDidLoad() {
         super.viewDidLoad()
         tableView.prefetchDataSource = self
+        dataSource.defaultRowAnimation = .fade
         tableView.dataSource = dataSource
         tableView.estimatedRowHeight = 580
         
