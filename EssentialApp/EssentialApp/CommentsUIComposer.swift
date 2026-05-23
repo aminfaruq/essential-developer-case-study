@@ -41,7 +41,7 @@ public final class CommentsUIComposer {
     
     private static func makeViewController(refreshDelegate: FeedRefreshViewController, title: String) -> ListViewController{
         let feedController = ListViewController(refreshController: refreshDelegate)
-        feedController.title = FeedPresenter.title
+        feedController.title = ImageCommentsPresenter.title
         return feedController
     }
 }
