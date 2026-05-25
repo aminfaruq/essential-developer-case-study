@@ -11,12 +11,12 @@ import EssentialFeediOS
 extension ListViewController {
     
     func simulateAppearance() {
-
+        
         if !isViewLoaded {
             loadViewIfNeeded()
             prepareForFirstAppearance()
         }
-
+        
         beginAppearanceTransition(true, animated: false)
         endAppearanceTransition()
     }
@@ -67,6 +67,42 @@ extension ListViewController {
     var errorMessage: String? {
         return errorView.message
     }
+}
+
+extension ListViewController {
+    
+    func numberOfRenderedComments() -> Int {
+        tableView.numberOfSections == 0 ? 0 : tableView.numberOfRows(inSection: commentsSection)
+    }
+    
+    func commentMessage(at row: Int) -> String? {
+        commentsView(at: row)?.messageLabel.text
+    }
+    
+    func commentDate(at row: Int) -> String? {
+        commentsView(at: row)?.dateLabel.text
+    }
+    
+    func commentUsername(at row: Int) -> String? {
+        commentsView(at: row)?.usernameLabel.text
+    }
+    
+    private func commentsView(at row: Int) -> ImageCommentCell? {
+        guard numberOfRenderedComments() > row else {
+            return nil
+        }
+        
+        let ds = tableView.dataSource
+        let index = IndexPath(row: row, section: commentsSection)
+        return ds?.tableView(tableView, cellForRowAt: index) as? ImageCommentCell
+    }
+    
+    private var commentsSection: Int {
+        return 0
+    }
+}
+
+extension ListViewController {
     
     func numberOfRows(in section: Int) -> Int {
         tableView.numberOfSections > section ? tableView.numberOfRows(inSection: section) : 0
