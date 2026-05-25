@@ -52,7 +52,7 @@ public final class FeedUIComposer {
         let refreshController = FeedRefreshViewController(/*delegate: presentationAdapter*/)
         refreshController.onRefresh = presentationAdapter.loadResource
         let feedController = makeViewController(
-//            delegate: presentationAdapter,
+            //delegate: presentationAdapter,
             refreshDelegate: refreshController,
             title: FeedPresenter.title
         )
